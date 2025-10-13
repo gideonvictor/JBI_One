@@ -1,0 +1,36 @@
+<h2 style="text-align: center">Sales</h2>
+    <table class="table table-striped">
+    <tbody>
+    <tr>
+        <th>Sales Name</th>
+        <th>Contact</th>
+        <th>Phone</th>
+        <th>Actions</th>
+    </tr>
+    {% for sd in sales_details %}
+        <tr>
+            <td>{{ sd.sales_name }}</td>
+            <td>{{ sd.sales_contact }}</td>
+            <td>{{ sd.sales_phone }}</td>
+            <td><button class="btn btn-outline-dark" type="button">Delete</button></td>
+        </tr>
+    {% endfor %}
+    <form action="/detail/{{ tasks.job_id }}/edit_sales" method="POST">
+  <tr>
+    <td>
+      <select name="sales_name" class="form-select" required>
+        <option value="" disabled selected>Select sales</option>
+        {% for s in all_sales %}
+        <option value="{{ s.sales_name }}">{{ s.sales_name }}</option>
+        {% endfor %}
+      </select>
+    </td>
+    <td></td>
+    <td></td>
+    <td>
+      <button class="btn btn-outline-dark" type="submit">Add</button>
+    </td>
+  </tr>
+</form>
+    </tbody>
+    </table>

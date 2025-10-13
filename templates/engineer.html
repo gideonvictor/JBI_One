@@ -1,0 +1,36 @@
+<h2 style="text-align: center">Engineer</h2>
+    <table class="table table-striped">
+    <tbody>
+    <tr>
+        <th>Engineer Name</th>
+        <th>Contact</th>
+        <th>Phone</th>
+        <th>Actions</th>
+    </tr>
+    {% for ed in engineers %}
+        <tr>
+            <td>{{ ed.engineer_name }}</td>
+            <td>{{ ed.engineer_contact }}</td>
+            <td>{{ ed.engineer_phone }}</td>
+            <td><button class="btn btn-outline-dark" type="button">Delete</button></td>
+        </tr>
+    {% endfor %}
+    <form action="/detail/{{ tasks.job_id }}/edit_engineer" method="POST">
+  <tr>
+    <td>
+      <select name="engineer_name" class="form-select" required>
+        <option value="" disabled selected>Select engineer</option>
+        {% for e in all_engineers %}
+        <option value="{{ e.engineer_name }}">{{ e.engineer_name }}</option>
+        {% endfor %}
+      </select>
+    </td>
+    <td></td>
+    <td></td>
+    <td>
+      <button class="btn btn-outline-dark" type="submit">Add</button>
+    </td>
+  </tr>
+</form>
+    </tbody>
+    </table>

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Job Detail - {{tasks.project_name}}</title>
+{% endblock %}
+
+{% block body %}
+  <div class="row">
+    <div class="col-12 col-md-8 d-flex flex-column">
+      {% include 'job_detail_edit.html' %}
+    </div>
+    <div class="col-12 col-md-4 d-flex flex-column justify-content-start">
+      <div class="mb-3">
+        {% include 'engineer.html' %}
+      </div>
+      <div>
+        {% include 'sales.html' %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

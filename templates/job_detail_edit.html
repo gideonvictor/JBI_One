@@ -1,0 +1,61 @@
+<form action="/detail/{{ tasks.job_id }}/edit" method="POST">
+  <h2 style="text-align: center"><button class="btn btn-outline-dark" type="submit">Save</button> Details</h2>
+</h2>
+<table class="table table-striped">
+    <tbody>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;"> project_name</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="project_name" id="project_name" value="{{tasks.project_name}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">account</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="account" id="account" value="{{tasks.account}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">reference_contact</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="reference_contact" id="reference_contact" value="{{tasks.reference_contact}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">phone number</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="phone_number" id="phone_number" value="{{tasks.phone_number}}"></td>
+        </tr>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">equipment description</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="equipment_description" id="equipment_description" value="{{tasks.equipment_description}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">jbi number</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="jbi_number" id="jbi_number" value="{{tasks.jbi_number}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Market</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="market" id="market" value="{{tasks.market}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">status</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="status" id="status" value="{{tasks.status}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">contractor</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="contractor_id" id="contractor_id" value="{{tasks.contractor_id}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">order date</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="order_date" id="order_date" value="{{tasks.order_date}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">ship date</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="ship_date" id="ship_date" value="{{tasks.ship_date}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">complete</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="complete" id="complete" value="{{tasks.complete}}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">judy_task</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="judy_task" id="judy_task" value="{{tasks.judy_task}}"></td>
+        </tr>
+    </tbody>
+</table>
+</form>

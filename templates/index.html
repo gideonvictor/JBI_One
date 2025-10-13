@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Task Master</title>
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align: center">JBI Water - Active Jobs</h1>
+
+
+		<canvas id="myChart" style="max-height: 250px;"></canvas>
+
+    <div class="row">
+    <div class = "col-12">
+        <form action="/" method="POST">
+          <table>
+            <tbody>
+              <tr>
+                <td>
+          <input type="text" name="order_name" id="order_name"></td>
+          <td style="max-width:50px">
+          <input class="btn btn-outline-primary" type="submit" value="Add Job"></td>
+          </tr>
+          </tbody>
+          </table>
+        </form>
+
+
+    {% if tasks|length < 1 %}
+    <h4 style="text-align: center">There are no tasks.</h4>
+    {% else %}
+    <table class="table table-dark table-striped">
+        <tr>
+            <th>Project</th>
+            <th>JBI #</th>
+            <th>Account</th>
+            <th>Market</th>
+            <th>Purchase Amount</th>
+            <th>Commission at Sale</th>
+            <th>Commission Net Due</th>
+            <th>Actions</th>
+        </tr>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.project_name }}</td>
+                <td>{{ task.jbi_number }}</td>
+                <td>{{ task.account }}</td>
+                <td>{{ task.market }}</td>
+                <td>{{ task.purchase_amount }}</td>
+                <td>{{ task.commission_at_sale }}</td>
+                <td>{{ task.commission_net_due }}</td>
+                <td>
+                    <div class="btn-group-vertical">
+                    <a class="btn btn-outline-primary" href="/detail/{{task.job_id}}">Detail</a>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+  </div>
+  </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -12,7 +12,8 @@
             <td>{{ sd.sales_name }}</td>
             <td>{{ sd.sales_contact }}</td>
             <td>{{ sd.sales_phone }}</td>
-            <td><button class="btn btn-outline-dark" type="button">Delete</button></td>
+            <td></td>
+            <!-- <td><button class="btn btn-outline-dark" type="button">Delete</button></td> -->
         </tr>
     {% endfor %}
     <form action="/detail/{{ tasks.job_id }}/edit_sales" method="POST">

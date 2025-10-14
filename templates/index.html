@@ -9,8 +9,6 @@
     <h1 style="text-align: center">JBI Water - Active Jobs</h1>
 
 
-		<canvas id="myChart" style="max-height: 250px;"></canvas>
-
     <div class="row">
     <div class = "col-12">
         <form action="/" method="POST">
@@ -18,7 +16,7 @@
             <tbody>
               <tr>
                 <td>
-          <input type="text" name="order_name" id="order_name"></td>
+          <input style="width:100%; color: #000;" type="text" name="order_name" id="order_name"></td>
           <td style="max-width:50px">
           <input class="btn btn-outline-primary" type="submit" value="Add Job"></td>
           </tr>
@@ -43,13 +41,13 @@
         </tr>
         {% for task in tasks %}
             <tr>
-                <td>{{ task.project_name }}</td>
-                <td>{{ task.jbi_number }}</td>
-                <td>{{ task.account }}</td>
-                <td>{{ task.market }}</td>
-                <td>{{ task.purchase_amount }}</td>
-                <td>{{ task.commission_at_sale }}</td>
-                <td>{{ task.commission_net_due }}</td>
+                <td>{{ task.project_name if task.project_name is not none else '' }}</td>
+                <td>{{ task.jbi_number if task.jbi_number is not none else '' }}</td>
+                <td>{{ task.account if task.account is not none else '' }}</td>
+                <td>{{ task.market if task.market is not none else '' }}</td>
+                <td>{{ '%.2f'|format(task.purchase_amount) if task.purchase_amount is not none else '' }}</td>
+                <td>{{ '%.2f'|format(task.commission_at_sale) if task.commission_at_sale is not none else '' }}</td>
+                <td>{{ '%.2f'|format(task.commission_net_due) if task.commission_net_due is not none else '' }}</td>
                 <td>
                     <div class="btn-group-vertical">
                     <a class="btn btn-outline-primary" href="/detail/{{task.job_id}}">Detail</a>

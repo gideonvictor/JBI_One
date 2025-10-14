@@ -2314,3 +2314,26 @@ button,
 .table, .table th, .table td {
   font-size: 1.2em; /* or any size you want, e.g. 16px */
 }
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 1rem);
+}
+
+.modal-content {
+  margin: auto;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+.modal-header, .modal-body, .modal-footer {
+  padding: 1rem;
+}
+.modal-header {
+  border-bottom: none;
+}
+.modal-footer {
+  border-top: none;
+  justify-content: center;
+}

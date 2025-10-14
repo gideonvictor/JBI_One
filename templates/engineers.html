@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Engineers</title>
+{% endblock %}
+
+{% block body %}
+
+    <h1 style="text-align: center">JBI Water - Engineers</h1>
+
+    <div class="row">
+    <div class = "col-12">
+        <form action="/engineers" method="POST">
+          <table>
+            <tbody>
+              <tr>
+                <th>Engineer Name</th>
+                <th>Contact</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+              <tr>
+                <td><input style="width:100%; color: #000;" type="text" name="engineer_name" id="engineer_name"></td>
+                <td><input style="width:100%; color: #000;" type="text" name="engineer_contact" id="engineer_contact"></td>
+                <td><input style="width:100%; color: #000;" type="text" name="engineer_phone" id="engineer_phone"></td>
+          <td style="max-width:50px">
+          <input class="btn btn-outline-primary" type="submit" value="Add Engineer"></td>
+          </tr>
+          </tbody>
+          </table>
+        </form>
+
+
+    {% if only_engineers|length < 1 %}
+    <h4 style="text-align: center">There are no engineers.</h4>
+    {% else %}
+    <table class="table table-dark table-striped">
+        <tr>
+            <th>Engineer Name</th>
+            <th>Contact</th>
+            <th>Phone</th>
+            <!-- <th>Actions</th> -->
+        </tr>
+        {% for e in only_engineers %}
+<tr>
+    <td>{{ e.engineer_name }}</td>
+    <td>{{ e.engineer_contact }}</td>
+    <td>{{ e.engineer_phone }}</td>
+    <!-- <td>
+        <div class="btn-group-vertical">
+            <button type="button" class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal{{ e.engineer_id }}">
+                Delete
+            </button>
+        </div>
+    </td> -->
+</tr>
+
+<!-- Delete Confirmation Modal
+<div class="modal fade" id="deleteModal{{ e.engineer_id }}" tabindex="-1"
+     aria-labelledby="deleteModalLabel{{ e.engineer_id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel{{ e.engineer_id }}">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        Are you sure you want to delete <strong>{{ e.engineer_name }}</strong>?
+      </div>
+      <div class="modal-footer justify-content-center">
+        <form action="/delete/engineer/{{ e.engineer_id }}" method="POST">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> -->
+{% endfor %}
+
+    </table>
+  </div>
+  </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -10,9 +10,7 @@ from datetime import datetime
 from config import postgres_username, postgres_password, postgres_host, postgres_port, postgres_dbname
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"mysql+mysqldb://{postgres_username}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_dbname}"
-)
+app.config['SQLALCHEMY_DATABASE_URI'] = (f"mysql+mysqldb://{postgres_username}:{postgres_password}@{postgres_host}:{postgres_port}/{postgres_dbname}")
 db = SQLAlchemy(app)
 logging.basicConfig(format="%(levelname)s - %(name)s - %(message)s", level=logging.INFO, stream=sys.stdout)
 log = logging.getLogger(__name__)
@@ -22,23 +20,60 @@ def clean_value(val):
         return None
     return val
 
-class jobs_index(db.Model):
-    job_id = db.Column(db.Integer, primary_key=True)
-    project_name = db.Column(db.String(200), nullable=True)
-    account = db.Column(db.String(200), nullable=True)
-    jbi_number = db.Column(db.String(200), nullable=True)
-    market = db.Column(db.String(200), nullable=True)
-    purchase_amount = db.Column(db.String(200), nullable=True)
-    commission_at_sale = db.Column(db.String(200), nullable=True)
-    commission_net_due = db.Column(db.String(200), nullable=True)
-    
+class commission_detail_line(db.Model):
+    job_id = db.Column(db.Integer, nullable=True)
+    commission_id = db.Column(db.Integer, nullable=True)
+    commission_line_id = db.Column(db.Integer, primary_key=True)
+    commission_amount = db.Column(db.String(200), nullable=True)
+    date_commission = db.Column(db.DateTime, default=datetime.utcnow)
     def __repr__(self):
         return '<Task %r>' % self.id
-    
+
+class engineer(db.Model):
+    engineer_id = db.Column(db.Integer, primary_key=True)
+    engineer_name = db.Column(db.String(200), nullable=True)
+    engineer_contact = db.Column(db.String(200), nullable=True)
+    engineer_phone = db.Column(db.String(200), nullable=True)
+    def __repr__(self):
+        return '<Task %r>' % self.id
+
+class engineer_detail(db.Model):
+    job_id = db.Column(db.Integer, primary_key=True)
+    engineer_id = db.Column(db.Integer, primary_key=True)
+    engineer_name = db.Column(db.String(200), primary_key=True)
+    engineer_contact = db.Column(db.String(200), nullable=True)
+    engineer_phone = db.Column(db.String(200), nullable=True)
+    def __repr__(self):
+        return '<Task %r>' % self.id
+
 class jobs(db.Model):
     job_id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(200), nullable=True)
+    def __repr__(self):
+        return '<Task %r>' % self.id
+
+class jobs_commission(db.Model):
+    commission_id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, nullable=True)
+    purchase_amount = db.Column(db.String(200), nullable=True)
+    commission_at_sale = db.Column(db.String(200), nullable=True)
+    commission_due_pct = db.Column(db.String(200), nullable=True)
+    commission_adjust = db.Column(db.String(200), nullable=True)
+    cause_of_adjustment = db.Column(db.String(200), nullable=True)
+    commission_net_due = db.Column(db.String(200), nullable=True)
+    notes = db.Column(db.String(2000), nullable=True)
+    final_commission = db.Column(db.String(200), nullable=True)
+    final_due = db.Column(db.String(200), nullable=True)
+    commission_due_1 = db.Column(db.String(200), nullable=True)
+    du1_date = db.Column(db.DateTime, default=datetime.utcnow)
+    def __repr__(self):
+        return '<Task %r>' % self.id
     
+class jobs_commission_line(db.Model):
+    commission_id = db.Column(db.Integer, nullable=True)
+    commission_line_id = db.Column(db.Integer, primary_key=True)
+    commission_amount = db.Column(db.String(200), nullable=True)
+    date_commission = db.Column(db.Date, default=datetime.utcnow)
     def __repr__(self):
         return '<Task %r>' % self.id
     
@@ -57,48 +92,30 @@ class jobs_detail(db.Model):
     ship_date = db.Column(db.DateTime, default=datetime.utcnow)
     complete = db.Column(db.String(200), nullable=True)
     judy_task = db.Column(db.String(200), nullable=True)
-
-    def __repr__(self):
-        return '<Task %r>' % self.id
-
-class engineer_detail(db.Model):
-    job_id = db.Column(db.Integer, primary_key=True)
-    engineer_id = db.Column(db.Integer, primary_key=True)
-    engineer_name = db.Column(db.String(200), primary_key=True)
-    engineer_contact = db.Column(db.String(200), nullable=True)
-    engineer_phone = db.Column(db.String(200), nullable=True)
-    
-    def __repr__(self):
-        return '<Task %r>' % self.id
-
-class sales_detail(db.Model):
-    job_id = db.Column(db.Integer, primary_key=True)
-    sales_name = db.Column(db.String(200), primary_key=True)
-    sales_contact = db.Column(db.String(200), nullable=True)
-    sales_phone = db.Column(db.String(200), nullable=True)
-
     def __repr__(self):
         return '<Task %r>' % self.id
     
 class job_engineer(db.Model):
     job_id = db.Column(db.Integer, primary_key=True)
     engineer_id = db.Column(db.Integer, primary_key=True)
-
+    def __repr__(self):
+        return '<Task %r>' % self.id
+    
+class jobs_index(db.Model):
+    job_id = db.Column(db.Integer, primary_key=True)
+    project_name = db.Column(db.String(200), nullable=True)
+    account = db.Column(db.String(200), nullable=True)
+    jbi_number = db.Column(db.String(200), nullable=True)
+    market = db.Column(db.String(200), nullable=True)
+    purchase_amount = db.Column(db.String(200), nullable=True)
+    commission_at_sale = db.Column(db.String(200), nullable=True)
+    commission_net_due = db.Column(db.String(200), nullable=True)
     def __repr__(self):
         return '<Task %r>' % self.id
     
 class jobs_sales(db.Model):
     job_id = db.Column(db.Integer, primary_key=True)
     sales_id = db.Column(db.Integer, primary_key=True)
-
-    def __repr__(self):
-        return '<Task %r>' % self.id
-
-class engineer(db.Model):
-    engineer_id = db.Column(db.Integer, primary_key=True)
-    engineer_name = db.Column(db.String(200), nullable=True)
-    engineer_contact = db.Column(db.String(200), nullable=True)
-    engineer_phone = db.Column(db.String(200), nullable=True)
     def __repr__(self):
         return '<Task %r>' % self.id
 
@@ -109,42 +126,14 @@ class sales(db.Model):
     sales_phone = db.Column(db.String(200), nullable=True)
     def __repr__(self):
         return '<Task %r>' % self.id
-    
-class jobs_commission(db.Model):
-    commission_id = db.Column(db.Integer, primary_key=True)
-    job_id = db.Column(db.Integer, nullable=True)
-    purchase_amount = db.Column(db.String(200), nullable=True)
-    commission_at_sale = db.Column(db.String(200), nullable=True)
-    commission_due_pct = db.Column(db.String(200), nullable=True)
-    commission_adjust = db.Column(db.String(200), nullable=True)
-    cause_of_adjustment = db.Column(db.String(200), nullable=True)
-    commission_net_due = db.Column(db.String(200), nullable=True)
-    notes = db.Column(db.String(2000), nullable=True)
-    final_commission = db.Column(db.String(200), nullable=True)
-    final_due = db.Column(db.String(200), nullable=True)
-    commission_due_1 = db.Column(db.String(200), nullable=True)
-    du1_date = db.Column(db.DateTime, default=datetime.utcnow)
-    def __repr__(self):
-        return '<Task %r>' % self.id
-    
-class commission_detail_line(db.Model):
-    job_id = db.Column(db.Integer, nullable=True)
-    commission_id = db.Column(db.Integer, nullable=True)
-    commission_line_id = db.Column(db.Integer, primary_key=True)
-    commission_amount = db.Column(db.String(200), nullable=True)
-    date_commission = db.Column(db.DateTime, default=datetime.utcnow)
-    def __repr__(self):
-        return '<Task %r>' % self.id
-    
-class jobs_commission_line(db.Model):
-    commission_id = db.Column(db.Integer, nullable=True)
-    commission_line_id = db.Column(db.Integer, primary_key=True)
-    commission_amount = db.Column(db.String(200), nullable=True)
-    date_commission = db.Column(db.Date, default=datetime.utcnow)
-    def __repr__(self):
-        return '<Task %r>' % self.id
 
-
+class sales_detail(db.Model):
+    job_id = db.Column(db.Integer, primary_key=True)
+    sales_name = db.Column(db.String(200), primary_key=True)
+    sales_contact = db.Column(db.String(200), nullable=True)
+    sales_phone = db.Column(db.String(200), nullable=True)
+    def __repr__(self):
+        return '<Task %r>' % self.id
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -182,6 +171,27 @@ def index():
             print(error_message)
             return "Error loading index page"
 
+@app.route('/detail/<int:job_id>/commission_line', methods=['POST'])
+def commission_line(job_id):
+    commission_amount = request.form.get('commission_amount')
+    date_commission = request.form.get('date')
+    commission_id = jobs_commission.query.filter_by(job_id=job_id).first().commission_id
+    new_commission = jobs_commission_line(
+        commission_amount=commission_amount,
+        date_commission=date_commission,
+        commission_id=commission_id,
+    )
+    try:
+        db.session.add(new_commission)
+        db.session.commit()
+        return redirect(f'/detail/{job_id}')
+    except Exception as e:
+        db.session.rollback()
+        error_message = traceback.format_exc()
+        log.debug(error_message)
+        print(error_message)
+        return 'There was an issue updating the commission line information'
+    
 @app.route('/detail/<int:job_id>', methods=['GET', 'POST'])
 def detail(job_id):
     tasks = jobs_detail.query.get_or_404(job_id)
@@ -196,46 +206,8 @@ def detail(job_id):
     print(error_message)
     return render_template('detail.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
 
-@app.route('/engineers', methods=['GET', 'POST'])
-def engineers():
-    only_engineers = engineer.query.all()
-    if request.method == 'POST':
-        engineer_name = request.form.get('engineer_name')
-        engineer_contact = request.form.get('engineer_contact')
-        engineer_phone = request.form.get('engineer_phone')
-        new_engineer = engineer(
-            engineer_name=engineer_name,
-            engineer_contact=engineer_contact,
-            engineer_phone=engineer_phone
-        )
-        try:
-            db.session.add(new_engineer)
-            db.session.commit()
-            return redirect('/engineers')
-        except Exception as e:
-            db.session.rollback()
-            error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
-            return 'There was an issue updating the engineers information'
-    return render_template('engineers.html', only_engineers=only_engineers)
-
-@app.route('/delete/engineer/<int:engineer_id>', methods=['POST'])
-def delete_engineer(engineer_id):
-    engineer_to_delete = engineer.query.get_or_404(engineer_id)
-    try:
-        db.session.delete(engineer_to_delete)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        error_message = traceback.format_exc()
-        log.debug(error_message)
-        print(error_message)
-        return 'There was an issue deleting the engineer information'
-    return redirect('/engineers')
-
 @app.route('/detail/<int:job_id>/edit', methods=['GET', 'POST'])
-def header_to_edit(job_id):
+def detail_edit(job_id):
     header_to_edit = jobs_detail.query.get_or_404(job_id)
     engineers = engineer.query.all()
     commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
@@ -271,6 +243,77 @@ def header_to_edit(job_id):
         log.error(error_message)
         print(error_message)
         return render_template('detail_edit_job.html', tasks=tasks, engineers=engineers, sales=sales, commission_details=commission_details, all_commissions=all_commissions)
+
+@app.route('/engineers', methods=['GET', 'POST'])
+def engineers():
+    only_engineers = engineer.query.all()
+    if request.method == 'POST':
+        engineer_name = request.form.get('engineer_name')
+        engineer_contact = request.form.get('engineer_contact')
+        engineer_phone = request.form.get('engineer_phone')
+        new_engineer = engineer(
+            engineer_name=engineer_name,
+            engineer_contact=engineer_contact,
+            engineer_phone=engineer_phone
+        )
+        try:
+            db.session.add(new_engineer)
+            db.session.commit()
+            return redirect('/engineers')
+        except Exception as e:
+            db.session.rollback()
+            error_message = traceback.format_exc()
+            log.debug(error_message)
+            print(error_message)
+            return 'There was an issue updating the engineers information'
+    return render_template('engineers.html', only_engineers=only_engineers)
+
+@app.route('/delete/engineer/<int:engineer_id>', methods=['POST'])
+def engineers_delete(engineer_id):
+    engineer_to_delete = engineer.query.get_or_404(engineer_id)
+    try:
+        db.session.delete(engineer_to_delete)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        error_message = traceback.format_exc()
+        log.debug(error_message)
+        print(error_message)
+        return 'There was an issue deleting the engineer information'
+    return redirect('/engineers')
+
+@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST'])
+def job_commission_edit(job_id):
+    tasks = jobs_detail.query.get_or_404(job_id)
+    engineers = engineer_detail.query.filter_by(job_id=job_id).all()
+    all_engineers = engineer.query.all()
+    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
+    all_sales = sales.query.all()
+    commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
+    all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
+    if request.method == 'POST':
+        commission_details.purchase_amount = clean_value(request.form.get('purchase_amount', commission_details.purchase_amount))
+        commission_details.commission_at_sale = clean_value(request.form.get('commission_at_sale', commission_details.commission_at_sale))
+        commission_details.commission_due_pct = clean_value(request.form.get('commission_due_percent', commission_details.commission_due_pct))
+        commission_details.commission_adjust = clean_value(request.form.get('commission_adjust', commission_details.commission_adjust))
+        commission_details.cause_of_adjustment = clean_value(request.form.get('cause_of_adjustment', commission_details.cause_of_adjustment))
+        commission_details.commission_net_due = clean_value(request.form.get('commission_net_due', commission_details.commission_net_due))
+        commission_details.notes = clean_value(request.form.get('notes', commission_details.notes))
+        commission_details.final_commission = clean_value(request.form.get('final_commission', commission_details.final_commission))
+        commission_details.final_due = clean_value(request.form.get('final_due', commission_details.final_due))
+        commission_details.commission_due_1 = clean_value(request.form.get('commission_due_1', commission_details.commission_due_1))
+        commission_details.du1_date = clean_value(request.form.get('du1_date', commission_details.du1_date))
+        try:
+            db.session.commit()
+            return redirect(f'/detail/{job_id}')
+        except Exception as e:
+            db.session.rollback()
+            error_message = traceback.format_exc()
+            log.debug(error_message)
+            print(error_message)
+            return 'There was an issue updating the job commission'
+    else:
+        return render_template('detail_edit_commission.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales, commission_details=commission_details, all_commissions=all_commissions)
     
 @app.route('/detail/<int:job_id>/edit_engineer', methods=['POST'])
 def job_engineer_edit(job_id):
@@ -324,39 +367,6 @@ def job_sales_edit(job_id):
         # Already exists, just redirect
         return redirect(f'/detail/{job_id}')
 
-@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST'])
-def job_commission_edit(job_id):
-    tasks = jobs_detail.query.get_or_404(job_id)
-    engineers = engineer_detail.query.filter_by(job_id=job_id).all()
-    all_engineers = engineer.query.all()
-    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
-    all_sales = sales.query.all()
-    commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
-    all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
-    if request.method == 'POST':
-        commission_details.purchase_amount = clean_value(request.form.get('purchase_amount', commission_details.purchase_amount))
-        commission_details.commission_at_sale = clean_value(request.form.get('commission_at_sale', commission_details.commission_at_sale))
-        commission_details.commission_due_pct = clean_value(request.form.get('commission_due_percent', commission_details.commission_due_pct))
-        commission_details.commission_adjust = clean_value(request.form.get('commission_adjust', commission_details.commission_adjust))
-        commission_details.cause_of_adjustment = clean_value(request.form.get('cause_of_adjustment', commission_details.cause_of_adjustment))
-        commission_details.commission_net_due = clean_value(request.form.get('commission_net_due', commission_details.commission_net_due))
-        commission_details.notes = clean_value(request.form.get('notes', commission_details.notes))
-        commission_details.final_commission = clean_value(request.form.get('final_commission', commission_details.final_commission))
-        commission_details.final_due = clean_value(request.form.get('final_due', commission_details.final_due))
-        commission_details.commission_due_1 = clean_value(request.form.get('commission_due_1', commission_details.commission_due_1))
-        commission_details.du1_date = clean_value(request.form.get('du1_date', commission_details.du1_date))
-        try:
-            db.session.commit()
-            return redirect(f'/detail/{job_id}')
-        except Exception as e:
-            db.session.rollback()
-            error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
-            return 'There was an issue updating the job commission'
-    else:
-        return render_template('detail_edit_commission.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales, commission_details=commission_details, all_commissions=all_commissions)
-    
 @app.route('/sales', methods=['GET', 'POST'])
 def sales_team():
     only_sales = sales.query.all()
@@ -382,32 +392,12 @@ def sales_team():
     return render_template('sales_team.html', only_sales=only_sales)
 
 @app.route('/delete/sales/<int:sales_id>', methods=['POST'])
-def delete_sales(sales_id):
+def sales_team_delete(sales_id):
     sales_to_delete = sales.query.get_or_404(sales_id)
     db.session.delete(sales_to_delete)
     db.session.commit()
     return redirect('/sales')
 
-@app.route('/detail/<int:job_id>/commission_line', methods=['POST'])
-def commission_line(job_id):
-    commission_amount = request.form.get('commission_amount')
-    date_commission = request.form.get('date')
-    commission_id = jobs_commission.query.filter_by(job_id=job_id).first().commission_id
-    new_commission = jobs_commission_line(
-        commission_amount=commission_amount,
-        date_commission=date_commission,
-        commission_id=commission_id,
-    )
-    try:
-        db.session.add(new_commission)
-        db.session.commit()
-        return redirect(f'/detail/{job_id}')
-    except Exception as e:
-        db.session.rollback()
-        error_message = traceback.format_exc()
-        log.debug(error_message)
-        print(error_message)
-        return 'There was an issue updating the commission line information'
 
 if __name__ == "__main__":
     app.run(debug=True)

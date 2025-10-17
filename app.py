@@ -212,6 +212,9 @@ def detail_edit(job_id):
     engineers = engineer.query.all()
     commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
     all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
+    all_engineers = engineer.query.all()
+    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
+    all_sales = sales.query.all()
     if request.method == 'POST':
         header_to_edit.project_name = clean_value(request.form.get('project_name', header_to_edit.project_name))
         header_to_edit.account = clean_value(request.form.get('account', header_to_edit.account))
@@ -238,11 +241,11 @@ def detail_edit(job_id):
             return 'There was an issue updating the header'
     else:
         tasks = jobs_detail.query.get_or_404(job_id)
-        sales = sales_detail.query.filter_by(job_id=job_id).all()
+        salesdetails = sales_detail.query.filter_by(job_id=job_id).all()
         error_message = traceback.format_exc()
         log.error(error_message)
         print(error_message)
-        return render_template('detail_edit_job.html', tasks=tasks, engineers=engineers, sales=sales, commission_details=commission_details, all_commissions=all_commissions)
+        return render_template('detail_edit_job.html', tasks=tasks, engineers=engineers, salesdetails=salesdetails, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
 
 @app.route('/engineers', methods=['GET', 'POST'])
 def engineers():

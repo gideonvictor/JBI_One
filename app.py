@@ -158,8 +158,8 @@ def index():
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.error(error_message)
-            print(error_message)
+            log.error(error_message + str(e))
+            print(error_message + str(e))
             return f"There was an issue adding your task: {str(e)}"
     else:
         try:
@@ -167,8 +167,8 @@ def index():
             return render_template('index.html', tasks=tasks)
         except Exception as e:
             error_message = traceback.format_exc()
-            log.error(error_message)
-            print(error_message)
+            log.error(error_message + str(e))
+            print(error_message + str(e))
             return "Error loading index page"
 
 @app.route('/detail/<int:job_id>/commission_line', methods=['POST'])
@@ -188,32 +188,35 @@ def commission_line(job_id):
     except Exception as e:
         db.session.rollback()
         error_message = traceback.format_exc()
-        log.debug(error_message)
-        print(error_message)
+        log.debug(error_message + str(e))
+        print(error_message + str(e))
         return 'There was an issue updating the commission line information'
     
 @app.route('/detail/<int:job_id>', methods=['GET', 'POST'])
 def detail(job_id):
-    tasks = jobs_detail.query.get_or_404(job_id)
-    engineers = engineer_detail.query.filter_by(job_id=job_id).all()
-    all_engineers = engineer.query.all()
-    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
-    all_sales = sales.query.all()
-    commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
-    all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
-    error_message = traceback.format_exc()
-    log.error(error_message)
-    print(error_message)
-    return render_template('detail.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
+    try:
+        tasks = jobs_detail.query.get_or_404(job_id)
+        eng = engineer_detail.query.filter_by(job_id=job_id).all()
+        all_engineers = engineer.query.all()
+        sales_details = sales_detail.query.filter_by(job_id=job_id).all()
+        all_sales = sales.query.all()
+        commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
+        all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
+    except Exception as e:
+        error_message = traceback.format_exc()
+        log.error(error_message + str(e))
+        print(error_message + str(e))
+        return 'There was an issue gathering details on the job'
+    return render_template('detail.html', tasks=tasks, engineers=eng, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
 
 @app.route('/detail/<int:job_id>/edit', methods=['GET', 'POST'])
 def detail_edit(job_id):
     header_to_edit = jobs_detail.query.get_or_404(job_id)
-    engineers = engineer.query.all()
+    eng = engineer_detail.query.filter_by(job_id=job_id).all()
     commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
+    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
     all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
     all_engineers = engineer.query.all()
-    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
     all_sales = sales.query.all()
     if request.method == 'POST':
         header_to_edit.project_name = clean_value(request.form.get('project_name', header_to_edit.project_name))
@@ -235,17 +238,18 @@ def detail_edit(job_id):
             return redirect(f'/detail/{job_id}')
         except Exception as e:
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             db.session.rollback()
             return 'There was an issue updating the header'
     else:
-        tasks = jobs_detail.query.get_or_404(job_id)
-        salesdetails = sales_detail.query.filter_by(job_id=job_id).all()
-        error_message = traceback.format_exc()
-        log.error(error_message)
-        print(error_message)
-        return render_template('detail_edit_job.html', tasks=tasks, engineers=engineers, salesdetails=salesdetails, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
+        try:
+            tasks = jobs_detail.query.get_or_404(job_id)
+        except Exception as e:
+            error_message = traceback.format_exc()
+            log.error(error_message + str(e))
+            print(error_message + str(e))
+        return render_template('detail_edit_job.html', tasks=tasks, engineers=eng, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
 
 @app.route('/engineers', methods=['GET', 'POST'])
 def engineers():
@@ -266,24 +270,43 @@ def engineers():
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             return 'There was an issue updating the engineers information'
     return render_template('engineers.html', only_engineers=only_engineers)
 
 @app.route('/delete/engineer/<int:engineer_id>', methods=['POST'])
 def engineers_delete(engineer_id):
-    engineer_to_delete = engineer.query.get_or_404(engineer_id)
+    eng = engineer.query.get_or_404(engineer_id)
     try:
-        db.session.delete(engineer_to_delete)
+        db.session.delete(eng)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
         error_message = traceback.format_exc()
-        log.debug(error_message)
-        print(error_message)
+        log.debug(error_message + str(e))
+        print(error_message + str(e))
         return 'There was an issue deleting the engineer information'
     return redirect('/engineers')
+
+@app.route('/engineers/<int:engineer_id>/detail', methods=['GET', 'POST'])
+def engineer_detail_view(engineer_id):
+    eng = engineer.query.get_or_404(engineer_id)
+    if request.method == 'POST':
+        eng.engineer_name = request.form.get('engineer_name') or None
+        eng.engineer_contact = request.form.get('engineer_contact') or None
+        eng.engineer_phone = request.form.get('engineer_phone') or None
+        try:
+            db.session.commit()
+            return redirect('/engineers')
+        except Exception as e:
+            db.session.rollback()
+            error_message = traceback.format_exc()
+            log.error(error_message + str(e))
+            print(error_message + str(e))
+            return 'There was an issue updating the engineer', 500
+    # GET
+    return render_template('engineers_detail.html', engineer=eng)
 
 @app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST'])
 def job_commission_edit(job_id):
@@ -312,8 +335,8 @@ def job_commission_edit(job_id):
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             return 'There was an issue updating the job commission'
     else:
         return render_template('detail_edit_commission.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales, commission_details=commission_details, all_commissions=all_commissions)
@@ -337,8 +360,8 @@ def job_engineer_edit(job_id):
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             return 'There was an issue updating the job engineer'
     else:
         # Already exists, just redirect
@@ -363,8 +386,8 @@ def job_sales_edit(job_id):
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             return 'There was an issue updating the job engineer'
     else:
         # Already exists, just redirect
@@ -389,10 +412,29 @@ def sales_team():
         except Exception as e:
             db.session.rollback()
             error_message = traceback.format_exc()
-            log.debug(error_message)
-            print(error_message)
+            log.debug(error_message + str(e))
+            print(error_message + str(e))
             return 'There was an issue updating the sales information'
     return render_template('sales_team.html', only_sales=only_sales)
+
+@app.route('/sales/<int:sales_id>/detail', methods=['GET', 'POST'])
+def sales_detail_view(sales_id):
+    sales_member= sales.query.get_or_404(sales_id)
+    if request.method == 'POST':
+        sales_member.sales_name = request.form.get('sales_name') or None
+        sales_member.sales_contact = request.form.get('sales_contact') or None
+        sales_member.sales_phone = request.form.get('sales_phone') or None
+        try:
+            db.session.commit()
+            return redirect('/sales')
+        except Exception as e:
+            db.session.rollback()
+            error_message = traceback.format_exc()
+            log.error(error_message + str(e))
+            print(error_message + str(e))
+            return 'There was an issue updating the sales information', 500
+    # GET
+    return render_template('sales_detail.html', sales=sales_member)
 
 @app.route('/delete/sales/<int:sales_id>', methods=['POST'])
 def sales_team_delete(sales_id):

@@ -163,8 +163,8 @@ def index():
             return f"There was an issue adding your task: {str(e)}"
     else:
         try:
-            tasks = jobs_index.query.order_by(jobs_index.job_id).all()
-            return render_template('index.html', tasks=tasks)
+            jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
+            return render_template('index.html', jobs_summary=jobs_summary)
         except Exception as e:
             error_message = traceback.format_exc()
             log.error(error_message + str(e))
@@ -173,13 +173,13 @@ def index():
 
 @app.route('/detail/<int:job_id>/commission_line', methods=['POST'])
 def commission_line(job_id):
-    commission_amount = request.form.get('commission_amount')
-    date_commission = request.form.get('date')
-    commission_id = jobs_commission.query.filter_by(job_id=job_id).first().commission_id
+    commission_line_amount = request.form.get('commission_amount')
+    commission_line_date = request.form.get('date')
+    parent_commission_id = jobs_commission.query.filter_by(job_id=job_id).first().commission_id
     new_commission = jobs_commission_line(
-        commission_amount=commission_amount,
-        date_commission=date_commission,
-        commission_id=commission_id,
+        commission_amount=commission_line_amount,
+        date_commission=commission_line_date,
+        commission_id=parent_commission_id,
     )
     try:
         db.session.add(new_commission)
@@ -195,44 +195,44 @@ def commission_line(job_id):
 @app.route('/detail/<int:job_id>', methods=['GET', 'POST'])
 def detail(job_id):
     try:
-        tasks = jobs_detail.query.get_or_404(job_id)
+        job_detail = jobs_detail.query.get_or_404(job_id)
         eng = engineer_detail.query.filter_by(job_id=job_id).all()
-        all_engineers = engineer.query.all()
-        sales_details = sales_detail.query.filter_by(job_id=job_id).all()
-        all_sales = sales.query.all()
-        commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
-        all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
+        engineers_list = engineer.query.all()
+        sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+        sales_list = sales.query.all()
+        parent_commission_id = jobs_commission.query.filter_by(job_id=job_id).first()
+        commission_lines_for_job = commission_detail_line.query.filter_by(job_id=job_id).all()
     except Exception as e:
         error_message = traceback.format_exc()
         log.error(error_message + str(e))
         print(error_message + str(e))
         return 'There was an issue gathering details on the job'
-    return render_template('detail.html', tasks=tasks, engineers=eng, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
+    return render_template('detail.html', job_detail=job_detail, eng=eng, sales_details_for_job=sales_details_for_job, engineers_list=engineers_list, sales_list=sales_list,parent_commission_id=parent_commission_id, commission_lines_for_job=commission_lines_for_job)
 
 @app.route('/detail/<int:job_id>/edit', methods=['GET', 'POST'])
 def detail_edit(job_id):
-    header_to_edit = jobs_detail.query.get_or_404(job_id)
+    job_detail = jobs_detail.query.get_or_404(job_id)
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
-    commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
-    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
-    all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
-    all_engineers = engineer.query.all()
-    all_sales = sales.query.all()
+    parent_commission_id = jobs_commission.query.filter_by(job_id=job_id).first()
+    sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    commission_lines_for_job = commission_detail_line.query.filter_by(job_id=job_id).all()
+    engineers_list = engineer.query.all()
+    sales_list = sales.query.all()
     if request.method == 'POST':
-        header_to_edit.project_name = clean_value(request.form.get('project_name', header_to_edit.project_name))
-        header_to_edit.account = clean_value(request.form.get('account', header_to_edit.account))
-        # header_to_edit.engineer_id = request.form.get('engineer_id', header_to_edit.engineer_id)
-        header_to_edit.reference_contact = clean_value(request.form.get('reference_contact', header_to_edit.reference_contact))
-        header_to_edit.phone_number = clean_value(request.form.get('phone_number', header_to_edit.phone_number))
-        header_to_edit.equipment_description = clean_value(request.form.get('equipment_description', header_to_edit.equipment_description))
-        header_to_edit.jbi_number = clean_value(request.form.get('jbi_number', header_to_edit.jbi_number))
-        header_to_edit.market = clean_value(request.form.get('market', header_to_edit.market))
-        header_to_edit.status = clean_value(request.form.get('status', header_to_edit.status))
-        header_to_edit.contractor_id = clean_value(request.form.get('contractor_id', header_to_edit.contractor_id))
-        header_to_edit.order_date = clean_value(request.form.get('order_date', header_to_edit.order_date))
-        header_to_edit.ship_date = clean_value(request.form.get('ship_date', header_to_edit.ship_date))
-        header_to_edit.complete = clean_value(request.form.get('complete', header_to_edit.complete))
-        header_to_edit.judy_task = clean_value(request.form.get('judy_task', header_to_edit.judy_task))
+        job_detail.project_name = clean_value(request.form.get('project_name', job_detail.project_name))
+        job_detail.account = clean_value(request.form.get('account', job_detail.account))
+        # job_detail.engineer_id = request.form.get('engineer_id', job_detail.engineer_id)
+        job_detail.reference_contact = clean_value(request.form.get('reference_contact', job_detail.reference_contact))
+        job_detail.phone_number = clean_value(request.form.get('phone_number', job_detail.phone_number))
+        job_detail.equipment_description = clean_value(request.form.get('equipment_description', job_detail.equipment_description))
+        job_detail.jbi_number = clean_value(request.form.get('jbi_number', job_detail.jbi_number))
+        job_detail.market = clean_value(request.form.get('market', job_detail.market))
+        job_detail.status = clean_value(request.form.get('status', job_detail.status))
+        job_detail.contractor_id = clean_value(request.form.get('contractor_id', job_detail.contractor_id))
+        job_detail.order_date = clean_value(request.form.get('order_date', job_detail.order_date))
+        job_detail.ship_date = clean_value(request.form.get('ship_date', job_detail.ship_date))
+        job_detail.complete = clean_value(request.form.get('complete', job_detail.complete))
+        job_detail.judy_task = clean_value(request.form.get('judy_task', job_detail.judy_task))
         try:
             db.session.commit()
             return redirect(f'/detail/{job_id}')
@@ -244,16 +244,16 @@ def detail_edit(job_id):
             return 'There was an issue updating the header'
     else:
         try:
-            tasks = jobs_detail.query.get_or_404(job_id)
+            job_detail = jobs_detail.query.get_or_404(job_id)
         except Exception as e:
             error_message = traceback.format_exc()
             log.error(error_message + str(e))
             print(error_message + str(e))
-        return render_template('detail_edit_job.html', tasks=tasks, engineers=eng, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales,commission_details=commission_details, all_commissions=all_commissions)
+        return render_template('detail_edit_job.html', job_detail=job_detail, eng=eng, sales_details_for_job=sales_details_for_job, engineers_list=engineers_list, sales_list=sales_list,parent_commission_id=parent_commission_id, commission_lines_for_job=commission_lines_for_job)
 
 @app.route('/engineers', methods=['GET', 'POST'])
 def engineers():
-    only_engineers = engineer.query.all()
+    engineers_list = engineer.query.all()
     if request.method == 'POST':
         engineer_name = request.form.get('engineer_name')
         engineer_contact = request.form.get('engineer_contact')
@@ -273,7 +273,7 @@ def engineers():
             log.debug(error_message + str(e))
             print(error_message + str(e))
             return 'There was an issue updating the engineers information'
-    return render_template('engineers.html', only_engineers=only_engineers)
+    return render_template('engineers.html', engineers_list=engineers_list)
 
 @app.route('/delete/engineer/<int:engineer_id>', methods=['POST'])
 def engineers_delete(engineer_id):
@@ -308,27 +308,27 @@ def engineer_detail_view(engineer_id):
     # GET
     return render_template('engineers_detail.html', engineer=eng)
 
-@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST'])
+@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST']) #############
 def job_commission_edit(job_id):
-    tasks = jobs_detail.query.get_or_404(job_id)
-    engineers = engineer_detail.query.filter_by(job_id=job_id).all()
-    all_engineers = engineer.query.all()
-    sales_details = sales_detail.query.filter_by(job_id=job_id).all()
-    all_sales = sales.query.all()
-    commission_details = jobs_commission.query.filter_by(job_id=job_id).first()
-    all_commissions = commission_detail_line.query.filter_by(job_id=job_id).all()
+    job_detail = jobs_detail.query.get_or_404(job_id)
+    eng = engineer_detail.query.filter_by(job_id=job_id).all()
+    engineers_list = engineer.query.all()
+    sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    sales_list = sales.query.all()
+    parent_commission_id = jobs_commission.query.filter_by(job_id=job_id).first()
+    commission_lines_for_job = commission_detail_line.query.filter_by(job_id=job_id).all()
     if request.method == 'POST':
-        commission_details.purchase_amount = clean_value(request.form.get('purchase_amount', commission_details.purchase_amount))
-        commission_details.commission_at_sale = clean_value(request.form.get('commission_at_sale', commission_details.commission_at_sale))
-        commission_details.commission_due_pct = clean_value(request.form.get('commission_due_percent', commission_details.commission_due_pct))
-        commission_details.commission_adjust = clean_value(request.form.get('commission_adjust', commission_details.commission_adjust))
-        commission_details.cause_of_adjustment = clean_value(request.form.get('cause_of_adjustment', commission_details.cause_of_adjustment))
-        commission_details.commission_net_due = clean_value(request.form.get('commission_net_due', commission_details.commission_net_due))
-        commission_details.notes = clean_value(request.form.get('notes', commission_details.notes))
-        commission_details.final_commission = clean_value(request.form.get('final_commission', commission_details.final_commission))
-        commission_details.final_due = clean_value(request.form.get('final_due', commission_details.final_due))
-        commission_details.commission_due_1 = clean_value(request.form.get('commission_due_1', commission_details.commission_due_1))
-        commission_details.du1_date = clean_value(request.form.get('du1_date', commission_details.du1_date))
+        parent_commission_id.purchase_amount = clean_value(request.form.get('purchase_amount', parent_commission_id.purchase_amount))
+        parent_commission_id.commission_at_sale = clean_value(request.form.get('commission_at_sale', parent_commission_id.commission_at_sale))
+        parent_commission_id.commission_due_pct = clean_value(request.form.get('commission_due_percent', parent_commission_id.commission_due_pct))
+        parent_commission_id.commission_adjust = clean_value(request.form.get('commission_adjust', parent_commission_id.commission_adjust))
+        parent_commission_id.cause_of_adjustment = clean_value(request.form.get('cause_of_adjustment', parent_commission_id.cause_of_adjustment))
+        parent_commission_id.commission_net_due = clean_value(request.form.get('commission_net_due', parent_commission_id.commission_net_due))
+        parent_commission_id.notes = clean_value(request.form.get('notes', parent_commission_id.notes))
+        parent_commission_id.final_commission = clean_value(request.form.get('final_commission', parent_commission_id.final_commission))
+        parent_commission_id.final_due = clean_value(request.form.get('final_due', parent_commission_id.final_due))
+        parent_commission_id.commission_due_1 = clean_value(request.form.get('commission_due_1', parent_commission_id.commission_due_1))
+        parent_commission_id.du1_date = clean_value(request.form.get('du1_date', parent_commission_id.du1_date))
         try:
             db.session.commit()
             return redirect(f'/detail/{job_id}')
@@ -339,21 +339,21 @@ def job_commission_edit(job_id):
             print(error_message + str(e))
             return 'There was an issue updating the job commission'
     else:
-        return render_template('detail_edit_commission.html', tasks=tasks, engineers=engineers, sales_details=sales_details, all_engineers=all_engineers, all_sales=all_sales, commission_details=commission_details, all_commissions=all_commissions)
-    
+        return render_template('detail_edit_commission.html', job_detail=job_detail, eng=eng, sales_details_for_job=sales_details_for_job, engineers_list=engineers_list, sales_list=sales_list,parent_commission_id=parent_commission_id, commission_lines_for_job=commission_lines_for_job)
+
 @app.route('/detail/<int:job_id>/edit_engineer', methods=['POST'])
 def job_engineer_edit(job_id):
     print("POST received for job_id:", job_id)
-    engineer_name = request.form.get('engineer_name')
-    engineer_obj = engineer.query.filter_by(engineer_name=engineer_name).first()
-    if not engineer_obj:
+    selected_engineer_name = request.form.get('engineer_name')
+    selected_engineer = engineer.query.filter_by(engineer_name=selected_engineer_name).first()
+    if not selected_engineer:
         return 'Engineer not found', 400
 
     # Check if this job-engineer pair already exists to avoid duplicates
-    existing = job_engineer.query.filter_by(job_id=job_id, engineer_id=engineer_obj.engineer_id).first()
-    if not existing:
-        new_job_engineer = job_engineer(job_id=job_id, engineer_id=engineer_obj.engineer_id)
-        db.session.add(new_job_engineer)
+    existing_job_engineer = job_engineer.query.filter_by(job_id=job_id, engineer_id=selected_engineer.engineer_id).first()
+    if not existing_job_engineer:
+        new_job_engineer_assoc = job_engineer(job_id=job_id, engineer_id=selected_engineer.engineer_id)
+        db.session.add(new_job_engineer_assoc)
         try:
             db.session.commit()
             return redirect(f'/detail/{job_id}')
@@ -370,16 +370,16 @@ def job_engineer_edit(job_id):
 @app.route('/detail/<int:job_id>/edit_sales', methods=['POST'])
 def job_sales_edit(job_id):
     print("POST received for sales_id:")
-    sales_name = request.form.get('sales_name')
-    sales_obj = sales.query.filter_by(sales_name=sales_name).first()
-    if not sales_obj:
+    selected_sales_name = request.form.get('sales_name')
+    selected_sales = sales.query.filter_by(sales_name=selected_sales_name).first()
+    if not selected_sales:
         return 'Sales not found', 400
 
     # Check if this job-sales pair already exists to avoid duplicates
-    existing = jobs_sales.query.filter_by(job_id=job_id, sales_id=sales_obj.sales_id).first()
-    if not existing:
-        new_job_sales = jobs_sales(job_id=job_id, sales_id=sales_obj.sales_id)
-        db.session.add(new_job_sales)
+    existing_job_sales = jobs_sales.query.filter_by(job_id=job_id, sales_id=selected_sales.sales_id).first()
+    if not existing_job_sales:
+        new_job_sales_assoc = jobs_sales(job_id=job_id, sales_id=selected_sales.sales_id)
+        db.session.add(new_job_sales_assoc)
         try:
             db.session.commit()
             return redirect(f'/detail/{job_id}')
@@ -395,18 +395,18 @@ def job_sales_edit(job_id):
 
 @app.route('/sales', methods=['GET', 'POST'])
 def sales_team():
-    only_sales = sales.query.all()
+    sales_list = sales.query.all()
     if request.method == 'POST':
         sales_name = request.form.get('sales_name')
         sales_contact = request.form.get('sales_contact')
         sales_phone = request.form.get('sales_phone')
-        new_sales = sales(
+        new_sales_obj = sales(
             sales_name=sales_name,
             sales_contact=sales_contact,
             sales_phone=sales_phone
         )
         try:
-            db.session.add(new_sales)
+            db.session.add(new_sales_obj)
             db.session.commit()
             return redirect('/sales')
         except Exception as e:
@@ -415,7 +415,7 @@ def sales_team():
             log.debug(error_message + str(e))
             print(error_message + str(e))
             return 'There was an issue updating the sales information'
-    return render_template('sales_team.html', only_sales=only_sales)
+    return render_template('sales_team.html', sales_list=sales_list)
 
 @app.route('/sales/<int:sales_id>/detail', methods=['GET', 'POST'])
 def sales_detail_view(sales_id):

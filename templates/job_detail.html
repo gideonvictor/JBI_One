@@ -3,56 +3,55 @@
     <tbody>
         <tr class="row row-cols-2">
             <td style="text-align: right;">project_name</td>
-            <td style="text-align: left;">{{tasks.project_name}}</td>
+            <td style="text-align: left;">{{tasks.project_name if tasks.project_name is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">account</td>
-            <td style="text-align: left;">{{tasks.account}}</td>
+            <td style="text-align: left;">{{tasks.account if tasks.account is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">reference_contact</td>
-            <td style="text-align: left;">{{tasks.reference_contact}}</td>
+            <td style="text-align: left;">{{tasks.reference_contact if tasks.reference_contact is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">phone number</td>
-            <td style="text-align: left;">{{tasks.phone_number}}</td>
-        </tr>
+            <td style="text-align: left;">{{tasks.phone_number if tasks.phone_number is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">equipment description</td>
-            <td style="text-align: left;">{{tasks.equipment_description}}</td>
+            <td style="text-align: left;">{{tasks.equipment_description if tasks.equipment_description is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">jbi number</td>
-            <td style="text-align: left;">{{tasks.jbi_number}}</td>
+            <td style="text-align: left;">{{tasks.jbi_number if tasks.jbi_number is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Market</td>
-            <td style="text-align: left;">{{tasks.market}}</td>
+            <td style="text-align: left;">{{tasks.market if tasks.market is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">status</td>
-            <td style="text-align: left;">{{tasks.status}}</td>
+            <td style="text-align: left;">{{tasks.status if tasks.status is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">contractor</td>
-            <td style="text-align: left;">{{tasks.contractor_id}}</td>
+            <td style="text-align: left;">{{tasks.contractor_id if tasks.contractor_id is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">order date</td>
-            <td style="text-align: left;">{{tasks.order_date}}</td>
+            <td style="text-align: left;">{{tasks.order_date if tasks.order_date is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">ship date</td>
-            <td style="text-align: left;">{{tasks.ship_date}}</td>
+            <td style="text-align: left;">{{tasks.ship_date if tasks.ship_date is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">complete</td>
-            <td style="text-align: left;">{{tasks.complete}}</td>
+            <td style="text-align: left;">{{tasks.complete if tasks.complete is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">judy_task</td>
-            <td style="text-align: left;">{{tasks.judy_task}}</td>
+            <td style="text-align: left;">{{tasks.judy_task if tasks.judy_task is not none else ''}}</td>
         </tr>
     </tbody>
 </table>

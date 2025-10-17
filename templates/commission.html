@@ -11,7 +11,7 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Due %</td>
-            <td style="text-align: left;">{{commission_details.commission_due_pct}}</td>
+            <td style="text-align: left;">{{commission_details.commission_due_pct if commission_details.commission_due_pct is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Adjust</td>
@@ -19,7 +19,7 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Cause of Adjustment</td>
-            <td style="text-align: left;">{{commission_details.cause_of_adjustment}}</td>
+            <td style="text-align: left;">{{commission_details.cause_of_adjustment if commission_details.cause_of_adjustment is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Net Due</td>
@@ -27,7 +27,7 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Notes</td>
-            <td style="text-align: left;">{{commission_details.notes}}</td>
+            <td style="text-align: left;">{{commission_details.notes if commission_details.notes is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Final Commission</td>
@@ -43,7 +43,7 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Du1 Date</td>
-            <td style="text-align: left;">{{commission_details.du1_date}}</td>
+            <td style="text-align: left;">{{commission_details.du1_date if commission_details.du1_date is not none else ''}}</td>
         </tr>
     </tbody>
 </table>

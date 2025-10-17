@@ -308,7 +308,7 @@ def engineer_detail_view(engineer_id):
     # GET
     return render_template('engineers_detail.html', engineer=eng)
 
-@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST']) #############
+@app.route('/detail/<int:job_id>/edit_commission', methods=['GET', 'POST'])
 def job_commission_edit(job_id):
     job_detail = jobs_detail.query.get_or_404(job_id)
     eng = engineer_detail.query.filter_by(job_id=job_id).all()

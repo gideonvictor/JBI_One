@@ -2,8 +2,9 @@ import sys
 import pymysql
 import logging
 import traceback
+import os
 
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
@@ -445,7 +446,13 @@ def sales_team_delete(sales_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=38291)
+    # Read environment variables (for Docker or local)
+    debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+    port = int(os.getenv("PORT", 38291))
+    host = os.getenv("FLASK_RUN_HOST", "0.0.0.0" if os.getenv("DOCKER_ENV") else "127.0.0.1")
+
+    # Run Flask app
+    app.run(debug=debug, host=host, port=port)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):

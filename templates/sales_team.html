@@ -39,13 +39,14 @@
             <th>Sales Name</th>
             <th>Contact</th>
             <th>Phone</th>
-            <!-- <th>Actions</th> -->
+            <th>Actions</th>
         </tr>
         {% for s in only_sales %}
 <tr>
     <td>{{ s.sales_name }}</td>
     <td>{{ s.sales_contact }}</td>
     <td>{{ s.sales_phone }}</td>
+    <td><a class="btn btn-outline-primary btn-sm" href="/sales/{{ s.sales_id }}/detail">Details</a></td>
     <!-- <td>
         <div class="btn-group-vertical">
             <button type="button" class="btn btn-outline-danger"

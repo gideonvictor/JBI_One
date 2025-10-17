@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  jbi_one:
+    container_name: jbi_one
+    build: .
+    restart: unless-stopped
+    ports:
+      - "38291:38291"
+    environment:
+      FLASK_ENV: production
+      PORT: 38291
+      # optional database connection vars
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      DOCKER_ENV: "true"
+    volumes:
+      # mounts your local code so you can edit without rebuilding
+      - .:/app
+    working_dir: /app
+    command: python app.py

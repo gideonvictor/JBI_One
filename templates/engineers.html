@@ -43,9 +43,9 @@
         </tr>
         {% for e in only_engineers %}
 <tr>
-    <td>{{ e.engineer_name }}</td>
-    <td>{{ e.engineer_contact }}</td>
-    <td>{{ e.engineer_phone }}</td>
+    <td>{{ e.engineer_name if e.engineer_name is not none else '' }}</td>
+    <td>{{ e.engineer_contact if e.engineer_contact is not none else '' }}</td>
+    <td>{{ e.engineer_phone if e.engineer_phone is not none else '' }}</td>
     <td><a class="btn btn-outline-primary btn-sm" href="/engineers/{{ e.engineer_id }}/detail">Details</a></td>
     <!-- <td>
         <div class="btn-group-vertical">

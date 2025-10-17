@@ -43,9 +43,9 @@
         </tr>
         {% for s in only_sales %}
 <tr>
-    <td>{{ s.sales_name }}</td>
-    <td>{{ s.sales_contact }}</td>
-    <td>{{ s.sales_phone }}</td>
+    <td>{{ s.sales_name if s.sales_name is not none else '' }}</td>
+    <td>{{ s.sales_contact if s.sales_contact is not none else '' }}</td>
+    <td>{{ s.sales_phone if s.sales_phone is not none else '' }}</td>
     <td><a class="btn btn-outline-primary btn-sm" href="/sales/{{ s.sales_id }}/detail">Details</a></td>
     <!-- <td>
         <div class="btn-group-vertical">

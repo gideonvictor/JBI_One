@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit Sales - {{ sales.sales_name }}</title>
+{% endblock %}
+
+{% block body %}
+<form action="/sales/{{ sales.sales_id }}/detail" method="POST">
+  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button> {{ sales.sales_name }} - Details</h2>
+  <table class="table table-striped">
+    <tbody>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Name</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="sales_name" id="sales_name" value="{{ sales.sales_name or '' }}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Contact</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="sales_contact" id="sales_contact" value="{{ sales.sales_contact or '' }}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Phone</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="sales_phone" id="sales_phone" value="{{ sales.sales_phone or '' }}"></td>
+        </tr>
+    </tbody>
+</table>
+</form>
+{% endblock %}

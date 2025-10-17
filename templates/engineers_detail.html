@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit Engineer - {{ engineer.engineer_name }}</title>
+{% endblock %}
+
+{% block body %}
+<form action="/engineers/{{ engineer.engineer_id }}/detail" method="POST">
+  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button> {{ engineer.engineer_name }} - Details</h2>
+  <table class="table table-striped">
+    <tbody>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Name</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="engineer_name" id="engineer_name" value="{{ engineer.engineer_name or '' }}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Contact</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="engineer_contact" id="engineer_contact" value="{{ engineer.engineer_contact or '' }}"></td>
+        </tr>
+        <tr class="row row-cols-2">
+            <td style="text-align: right;">Phone</td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="engineer_phone" id="engineer_phone" value="{{ engineer.engineer_phone or '' }}"></td>
+        </tr>
+    </tbody>
+</table>
+</form>
+{% endblock %}

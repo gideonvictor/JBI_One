@@ -7,21 +7,21 @@
         <th>Phone</th>
         <th>Actions</th>
     </tr>
-    {% for ed in engineers %}
+    {% for en in eng %}
         <tr>
-            <td>{{ ed.engineer_name }}</td>
-            <td>{{ ed.engineer_contact }}</td>
-            <td>{{ ed.engineer_phone }}</td>
+            <td>{{ en.engineer_name }}</td>
+            <td>{{ en.engineer_contact }}</td>
+            <td>{{ en.engineer_phone }}</td>
             <td></td>
             <!-- <td><button class="btn btn-outline-dark" type="button">Delete</button></td> -->
         </tr>
     {% endfor %}
-    <form action="/detail/{{ tasks.job_id }}/edit_engineer" method="POST">
+    <form action="/detail/{{ job_detail.job_id }}/edit_engineer" method="POST">
   <tr>
     <td>
       <select name="engineer_name" class="form-select" required>
         <option value="" disabled selected>Select engineer</option>
-        {% for e in all_engineers %}
+        {% for e in engineers_list %}
         <option value="{{ e.engineer_name }}">{{ e.engineer_name }}</option>
         {% endfor %}
       </select>

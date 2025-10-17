@@ -1,50 +1,50 @@
-<form action="/detail/{{ tasks.job_id }}/edit_commission" method="POST">
+<form action="/detail/{{ job_detail.job_id }}/edit_commission" method="POST">
   <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button> Commission Details</h2>
   <table class="table table-striped">
     <tbody>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Purchase Amount</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(commission_details.purchase_amount) if commission_details.purchase_amount is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission at Sale</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(commission_details.commission_at_sale) if commission_details.commission_at_sale is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Due %</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_due_percent" id="commission_due_percent" value="{{commission_details.commission_due_pct}}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_due_percent" id="commission_due_percent" value="{{parent_commission_id.commission_due_pct if parent_commission_id.commission_adjust is not none else ''}}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Adjust</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_adjust" id="commission_adjust" value="{{ '%.2f'|format(commission_details.commission_adjust) if commission_details.commission_adjust is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_adjust" id="commission_adjust" value="{{ '%.2f'|format(parent_commission_id.commission_adjust) if parent_commission_id.commission_adjust is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Cause of Adjustment</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="cause_of_adjustment" id="cause_of_adjustment" value="{{commission_details.cause_of_adjustment}}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="cause_of_adjustment" id="cause_of_adjustment" value="{{parent_commission_id.cause_of_adjustment if parent_commission_id.cause_of_adjustment is not none else ''}}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Net Due</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_net_due" id="commission_net_due" value="{{ '%.2f'|format(commission_details.commission_net_due) if commission_details.commission_net_due is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_net_due" id="commission_net_due" value="{{ '%.2f'|format(parent_commission_id.commission_net_due) if parent_commission_id.commission_net_due is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Notes</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="notes" id="notes" value="{{commission_details.notes}}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="notes" id="notes" value="{{parent_commission_id.notes if parent_commission_id.notes is not none else ''}}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Final Commission</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="final_commission" id="final_commission" value="{{ '%.2f'|format(commission_details.final_commission) if commission_details.final_commission is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="final_commission" id="final_commission" value="{{ '%.2f'|format(parent_commission_id.final_commission) if parent_commission_id.final_commission is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Final Due</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="final_due" id="final_due" value="{{ '%.2f'|format(commission_details.final_due) if commission_details.final_due is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="final_due" id="final_due" value="{{ '%.2f'|format(parent_commission_id.final_due) if parent_commission_id.final_due is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission Due 1</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_due_1" id="commission_due_1" value="{{ '%.2f'|format(commission_details.commission_due_1) if commission_details.commission_due_1 is not none else '' }}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_due_1" id="commission_due_1" value="{{ '%.2f'|format(parent_commission_id.commission_due_1) if parent_commission_id.commission_due_1 is not none else '' }}"></td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Du1 Date</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="du1_date" id="du1_date" value="{{commission_details.du1_date}}"></td>
+            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="du1_date" id="du1_date" value="{{parent_commission_id.du1_date if parent_commission_id.du1_date is not none else ''}}"></td>
         </tr>
     </tbody>
 </table>

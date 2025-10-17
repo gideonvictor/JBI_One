@@ -7,7 +7,7 @@
         <th>Phone</th>
         <th>Actions</th>
     </tr>
-    {% for sd in sales_details %}
+    {% for sd in sales_details_for_job %}
         <tr>
             <td>{{ sd.sales_name }}</td>
             <td>{{ sd.sales_contact }}</td>
@@ -16,12 +16,12 @@
             <!-- <td><button class="btn btn-outline-dark" type="button">Delete</button></td> -->
         </tr>
     {% endfor %}
-    <form action="/detail/{{ tasks.job_id }}/edit_sales" method="POST">
+    <form action="/detail/{{ job_detail.job_id }}/edit_sales" method="POST">
   <tr>
     <td>
       <select name="sales_name" class="form-select" required>
         <option value="" disabled selected>Select sales</option>
-        {% for s in all_sales %}
+        {% for s in sales_list %}
         <option value="{{ s.sales_name }}">{{ s.sales_name }}</option>
         {% endfor %}
       </select>

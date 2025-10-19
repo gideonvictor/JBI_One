@@ -1,0 +1,48 @@
+<div class="row">
+  <div class="col-12">
+    <div class="row g-3 mb-3">
+
+      {# --- Detect context automatically --- #}
+      {% set tiles_source = job_detail_totals if job_detail_totals is defined else (
+          job_detail if job_detail is defined else None
+      ) %}
+
+      {% if tiles_source %}
+        <div class="col-12 col-md-4">
+          <div class="card text-white bg-secondary">
+            <div class="card-body">
+              <h3 class="card-title">Purchase Amount</h3>
+              <p class="card-text mb-0">
+                $ {{ '%.2f'|format(tiles_source.purchase_amount|float) if tiles_source.purchase_amount is not none else '—' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card text-white bg-secondary">
+            <div class="card-body">
+              <h3 class="card-title">Commission At Sale</h3>
+              <p class="card-text mb-0">
+                $ {{ '%.2f'|format(tiles_source.commission_at_sale|float) if tiles_source.commission_at_sale is not none else '—' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card text-white bg-secondary">
+            <div class="card-body">
+              <h3 class="card-title">Commission Net Due</h3>
+              <p class="card-text mb-0">
+                $ {{ '%.2f'|format(tiles_source.commission_net_due|float) if tiles_source.commission_net_due is not none else '—' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <p class="text-muted text-center">No commission data available.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>

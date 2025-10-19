@@ -6,25 +6,15 @@
 
 {% block body %}
 
-    <h1 style="text-align: center">JBI Water - Active Jobs</h1>
+    <form action="/" method="POST" class="d-flex justify-content-center align-items-center gap-3 my-3">
+      <h1 class="m-0">JBI Water - Active Jobs</h1>
+      <button type="submit" class="btn btn-outline-primary">Add Job</button>
+    </form>
 
-
-    <div class="row">
+    {% include 'detail_tiles.html' with context %}
+  
+<div class="row">
     <div class = "col-12">
-        <form action="/" method="POST">
-          <table>
-            <tbody>
-              <tr>
-                <td>
-          <input style="width:100%; color: #000;" type="text" name="order_name" id="order_name"></td>
-          <td style="max-width:50px">
-          <input class="btn btn-outline-primary" type="submit" value="Add Job"></td>
-          </tr>
-          </tbody>
-          </table>
-        </form>
-
-
     {% if jobs_summary|length < 1 %}
     <h4 style="text-align: center">There are no jobs_summary.</h4>
     {% else %}
@@ -39,6 +29,22 @@
             <th>Commission Net Due</th>
             <th>Actions</th>
         </tr>
+        <form action="/" method="GET">
+        <tr>
+          <td><input style="width:100%; color: #000;" type="text" name="project_name" id="project_name"></td>
+          <td><input style="width:100%; color: #000;" type="text" name="jbi_number" id="jbi_number"></td>
+          <td><input style="width:100%; color: #000;" type="text" name="account" id="account"></td>
+          <td><input style="width:100%; color: #000;" type="text" name="market" id="market"></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>
+              <div class="btn-group-vertical">
+              <input class="btn btn-outline-primary" type="submit" value="Search"></td>
+              </div>
+          </td>
+          </tr>
+          </form>
         {% for js in jobs_summary %}
             <tr>
                 <td>{{ js.project_name if js.project_name is not none else '' }}</td>

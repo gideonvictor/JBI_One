@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block body %}
+  {% include 'detail_tiles.html' with context %}
   <div class="row">
     <div class="col-12 col-md-8 d-flex flex-column">
       {% include 'job_detail_edit.html' %}

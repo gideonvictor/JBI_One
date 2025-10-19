@@ -22,10 +22,6 @@
             <td style="text-align: left;">{{parent_commission_id.cause_of_adjustment if parent_commission_id.cause_of_adjustment is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
-            <td style="text-align: right;">Commission Net Due</td>
-            <td style="text-align: left;">{{ '%.2f'|format(parent_commission_id.commission_net_due) if parent_commission_id.commission_net_due is not none else '' }}</td>
-        </tr>
-        <tr class="row row-cols-2">
             <td style="text-align: right;">Notes</td>
             <td style="text-align: left;">{{parent_commission_id.notes if parent_commission_id.notes is not none else ''}}</td>
         </tr>
@@ -91,27 +87,6 @@
                 </div>
             </td>
         </tr>
-        <!-- ...modal code... -->
-         <div class="modal fade" id="deleteModal{{ c.commission_id }}" tabindex="-1"
-     aria-labelledby="deleteModalLabel{{ c.commission_id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel{{ c.commission_id }}">Confirm Delete</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        Are you sure you want to delete <strong>{{ c.commission_amount }}</strong>?
-      </div>
-      <div class="modal-footer justify-content-center">
-        <form action="/delete/commission/{{ c.commission_id }}" method="POST">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
         {% endfor %}
     </table>
 {% endif %}

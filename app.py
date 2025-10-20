@@ -404,6 +404,7 @@ def engineers():
 @app.route('/delete/engineer/<int:engineer_id>', methods=['POST'])
 def engineers_delete(engineer_id):
     eng = engineer.query.get_or_404(engineer_id)
+    job_detail = jobs_detail.query.get_or_404(job_id)
     try:
         db.session.delete(eng)
         db.session.commit()
@@ -418,6 +419,7 @@ def engineers_delete(engineer_id):
 @app.route('/engineers/<int:engineer_id>/detail', methods=['GET', 'POST'])
 def engineer_detail_view(engineer_id):
     eng = engineer.query.get_or_404(engineer_id)
+
     if request.method == 'POST':
         eng.engineer_name = request.form.get('engineer_name') or None
         eng.engineer_contact = request.form.get('engineer_contact') or None

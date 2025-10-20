@@ -47,38 +47,7 @@
     <td>{{ e.engineer_contact if e.engineer_contact is not none else '' }}</td>
     <td>{{ e.engineer_phone if e.engineer_phone is not none else '' }}</td>
     <td><a class="btn btn-outline-primary btn-sm" href="/engineers/{{ e.engineer_id }}/detail">Details</a></td>
-    <!-- <td>
-        <div class="btn-group-vertical">
-            <button type="button" class="btn btn-outline-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#deleteModal{{ e.engineer_id }}">
-                Delete
-            </button>
-        </div>
-    </td> -->
 </tr>
-
-<!-- Delete Confirmation Modal
-<div class="modal fade" id="deleteModal{{ e.engineer_id }}" tabindex="-1"
-     aria-labelledby="deleteModalLabel{{ e.engineer_id }}" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel{{ e.engineer_id }}">Confirm Delete</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        Are you sure you want to delete <strong>{{ e.engineer_name }}</strong>?
-      </div>
-      <div class="modal-footer justify-content-center">
-        <form action="/delete/engineer/{{ e.engineer_id }}" method="POST">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div> -->
 {% endfor %}
 
     </table>

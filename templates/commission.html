@@ -36,10 +36,11 @@
                 <th>Actions</th>
               </tr>
               <tr>
-                <td><input style="width:100%; color: #000;" type="text" name="commission_amount" id="commission_amount"></td>
-                <td><input style="width:100%; color: #000;" type="date" name="date" id="date"></td>
+                <td><input style="width:100%;" type="text" name="commission_amount" id="commission_amount"></td>
+                <td><input style="width:100%;" type="date" name="date" id="date"></td>
                 <td style="max-width:50px">
-          <input class="btn btn-outline-primary" type="submit" value="Add Commission Line"></td>
+          <button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button>
+        </td>
           </tr>
           </tbody>
           </table>
@@ -49,7 +50,7 @@
     {% if commission_lines_for_job|length < 1 %}
     <h4 style="text-align: center">There are no commissions.</h4>
 {% else %}
-    <table class="table table-dark table-striped">
+    <table class="table table-striped">
         <tr>
             <th>Commission Amount</th>
             <th>Date</th>

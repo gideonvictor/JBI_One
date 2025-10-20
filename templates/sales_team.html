@@ -20,9 +20,9 @@
                 <th>Actions</th>
               </tr>
               <tr>
-                <td><input style="width:100%; color: #000;" type="text" name="sales_name" id="sales_name"></td>
-                <td><input style="width:100%; color: #000;" type="text" name="sales_contact" id="sales_contact"></td>
-                <td><input style="width:100%; color: #000;" type="text" name="sales_phone" id="sales_phone"></td>
+                <td><input style="width:100%;" type="text" name="sales_name" id="sales_name"></td>
+                <td><input style="width:100%;" type="text" name="sales_contact" id="sales_contact"></td>
+                <td><input style="width:100%;" type="text" name="sales_phone" id="sales_phone"></td>
           <td style="max-width:50px">
           <input class="btn btn-outline-primary" type="submit" value="Add Sales"></td>
           </tr>
@@ -34,7 +34,7 @@
     {% if sales_list|length < 1 %}
     <h4 style="text-align: center">There are no sales.</h4>
     {% else %}
-    <table class="table table-dark table-striped">
+    <table class="table table-striped">
         <tr>
             <th>Sales Name</th>
             <th>Contact</th>

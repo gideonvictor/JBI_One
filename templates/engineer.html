@@ -3,15 +3,11 @@
     <tbody>
     <tr>
         <th>Engineer Name</th>
-        <th>Contact</th>
-        <th>Phone</th>
         <th>Actions</th>
     </tr>
     {% for en in eng %}
         <tr>
             <td>{{ en.engineer_name }}</td>
-            <td>{{ en.engineer_contact }}</td>
-            <td>{{ en.engineer_phone }}</td>
             <td>
             <form
               action="{{ url_for('job_engineer_delete', auto_id=en.auto_id) }}"
@@ -39,10 +35,8 @@
         {% endfor %}
       </select>
     </td>
-    <td></td>
-    <td></td>
     <td>
-      <button class="btn btn-outline-dark" type="submit">Add</button>
+      <button class="btn btn-outline-light" type="submit">Add</button>
     </td>
   </tr>
 </form>

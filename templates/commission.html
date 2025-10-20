@@ -9,6 +9,7 @@
             <td style="text-align: right;">Commission at Sale</td>
             <td style="text-align: left;">{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}</td>
         </tr>
+        <tr class="row row-cols-2">
             <td style="text-align: right;">Notes</td>
             <td style="text-align: left;">{{parent_commission_id.notes if parent_commission_id.notes is not none else ''}}</td>
         </tr>

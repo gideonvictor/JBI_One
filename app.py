@@ -176,6 +176,7 @@ class jobs_index(db.Model):
     account = db.Column(db.String(200))
     jbi_number = db.Column(db.String(200))
     market = db.Column(db.String(200))
+    contractor = db.Column(db.String(200))
     purchase_amount = db.Column(db.String(200))
     commission_at_sale = db.Column(db.String(200))
     commission_net_due = db.Column(db.String(200))
@@ -265,6 +266,7 @@ def index():
             "account": request.args.get("account", type=str),
             "jbi_number": request.args.get("jbi_number", type=str),
             "market": request.args.get("market", type=str),
+            "contractor": request.args.get("contractor", type=str),
         }
         for field, value in filters.items():
             if value:

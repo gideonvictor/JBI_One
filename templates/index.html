@@ -24,7 +24,7 @@
             <th>JBI #</th>
             <th>Account</th>
             <th>Market</th>
-            <th>Purchase Amount</th>
+            <th>Contractor</th>
             <th>Commission at Sale</th>
             <th>Commission Net Due</th>
             <th>Actions</th>
@@ -35,7 +35,7 @@
           <td><input style="width:100%; color: #000;" type="text" name="jbi_number" id="jbi_number"></td>
           <td><input style="width:100%; color: #000;" type="text" name="account" id="account"></td>
           <td><input style="width:100%; color: #000;" type="text" name="market" id="market"></td>
-          <td></td>
+          <td><input style="width:100%; color: #000;" type="text" name="contractor" id="contractor"></td>
           <td></td>
           <td></td>
           <td>
@@ -51,7 +51,7 @@
                 <td>{{ js.jbi_number if js.jbi_number is not none else '' }}</td>
                 <td>{{ js.account if js.account is not none else '' }}</td>
                 <td>{{ js.market if js.market is not none else '' }}</td>
-                <td>{{ '%.2f'|format(js.purchase_amount) if js.purchase_amount is not none else '' }}</td>
+                <td>{{ js.contractor if js.contractor is not none else '' }}</td>
                 <td>{{ '%.2f'|format(js.commission_at_sale) if js.commission_at_sale is not none else '' }}</td>
                 <td>{{ '%.2f'|format(js.commission_net_due) if js.commission_net_due is not none else '' }}</td>
                 <td>

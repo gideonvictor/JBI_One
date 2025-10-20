@@ -1,0 +1,13 @@
+<h2 class="text-center"><a class="btn btn-outline-dark" href="/detail/{{job_detail.job_id}}/judy_edit">Edit</a> Notes</h2>
+<table class="table table-striped">
+    <tbody>
+        <th class="row row-cols-2">
+            <td style="text-align: right;">Judy Task</td>
+        </th>
+        <tr class="row row-cols-2">
+            <td style="text-align: left; white-space: pre-wrap; word-wrap: break-word;">
+                {{ job_detail.judy_task if job_detail.judy_task is not none else '' }}
+            </td>
+        </tr>
+    </tbody>
+</table>

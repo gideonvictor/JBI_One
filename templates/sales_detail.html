@@ -6,7 +6,7 @@
 
 {% block body %}
 <form action="/sales/{{ sales.sales_id }}/detail" method="POST">
-  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button> {{ sales.sales_name }} - Details</h2>
+  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button><a class="btn btn-outline-secondary" href="/detail/{{ job_detail.job_id }}">Cancel</a> {{ sales.sales_name }} - Details</h2>
   <table class="table table-striped">
     <tbody>
         <tr class="row row-cols-2">

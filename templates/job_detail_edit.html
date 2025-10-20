@@ -1,5 +1,5 @@
 <form action="/detail/{{ job_detail.job_id }}/edit" method="POST">
-  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button> Details</h2>
+  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button><a class="btn btn-outline-secondary" href="/detail/{{ job_detail.job_id }}">Cancel</a> Details</h2>
 <table class="table table-striped">
     <tbody>
         <tr class="row row-cols-2">
@@ -52,7 +52,15 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Judy Task</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="judy_task" id="judy_task" value="{{job_detail.judy_task if job_detail.judy_task is not none else ''}}"></td>
+            <td style="text-align: left;">
+            <input 
+            style="width:100%; color: #000;" 
+            class="textbox" 
+            type="text" 
+            name="judy_task" 
+            rows="5"
+            id="judy_task" 
+            value="{{job_detail.judy_task if job_detail.judy_task is not none else ''}}"></td>
         </tr>
     </tbody>
 </table>

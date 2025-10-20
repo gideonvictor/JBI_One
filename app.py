@@ -324,8 +324,8 @@ def detail(job_id):
             jobs_summary=jobs_summary,
             eng=eng,
             sales_details_for_job=sales_details_for_job,
-            engineers_list=engineer.query.all(),
-            sales_list=sales.query.all(),
+            engineers_list=engineer.query.order_by(engineer.engineer_name).all(),
+            sales_list=sales.query.order_by(sales.sales_name).all(),
             parent_commission_id=parent_commission,
             commission_lines_for_job=commission_lines,
         )
@@ -372,8 +372,8 @@ def detail_edit(job_id):
         jobs_summary=jobs_summary,
         eng=eng,
         sales_details_for_job=sales_details_for_job,
-        engineers_list=engineer.query.all(),
-        sales_list=sales.query.all(),
+        engineers_list=engineer.query.order_by(engineer.engineer_name).all(),
+        sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
     )
@@ -415,15 +415,15 @@ def detail_edit_judy(job_id):
         jobs_summary=jobs_summary,
         eng=eng,
         sales_details_for_job=sales_details_for_job,
-        engineers_list=engineer.query.all(),
-        sales_list=sales.query.all(),
+        engineers_list=engineer.query.order_by(engineer.engineer_name).all(),
+        sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
     )
 
 @app.route('/engineers', methods=['GET', 'POST'])
 def engineers():
-    engineers_list = engineer.query.all()
+    engineers_list = engineer.query.order_by(engineer.engineer_name).all(),
     if request.method == 'POST':
         engineer_name = request.form.get('engineer_name')
         engineer_contact = request.form.get('engineer_contact')
@@ -520,9 +520,9 @@ def job_commission_edit(job_id):
         job_detail_totals=job_detail_totals,
         jobs_summary=jobs_summary,
         eng=eng,
-        engineers_list=engineer.query.all(),
+        engineers_list=engineer.query.order_by(engineer.engineer_name).all(),
         sales_details_for_job=sales_details_for_job,
-        sales_list=sales.query.all(),
+        sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
     )

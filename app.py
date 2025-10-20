@@ -151,7 +151,7 @@ class jobs_detail(db.Model):
     jbi_number = db.Column(db.String(200))
     market = db.Column(db.String(200))
     status = db.Column(db.String(200))
-    contractor_id = db.Column(db.String(200))
+    contractor = db.Column(db.String(200))
     order_date = db.Column(db.DateTime, default=datetime.utcnow)
     ship_date = db.Column(db.DateTime, default=datetime.utcnow)
     complete = db.Column(db.String(200))
@@ -350,7 +350,7 @@ def detail_edit(job_id):
             editable_fields = [
                 "project_name", "account", "reference_contact", "phone_number",
                 "equipment_description", "jbi_number", "market", "status",
-                "contractor_id", "order_date", "ship_date", "complete", "judy_task",
+                "contractor", "order_date", "ship_date", "complete", "judy_task",
             ]
             for field in editable_fields:
                 setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))

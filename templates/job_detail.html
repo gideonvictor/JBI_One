@@ -35,7 +35,7 @@
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Contractor</td>
-            <td style="text-align: left;">{{job_detail.contractor_id if job_detail.contractor_id is not none else ''}}</td>
+            <td style="text-align: left;">{{job_detail.contractor if job_detail.contractor is not none else ''}}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Order Date</td>

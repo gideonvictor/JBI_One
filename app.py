@@ -72,8 +72,8 @@ def get_job_totals(job_id):
 # SQLAlchemy Models
 # -----------------------------------------------------------------------------
 class commission_detail_line(db.Model):
-    job_id = db.Column(db.Integer, nullable=True)
-    commission_id = db.Column(db.Integer, nullable=True)
+    job_id = db.Column(db.Integer)
+    commission_id = db.Column(db.Integer)
     commission_line_id = db.Column(db.Integer, primary_key=True)
     commission_amount = db.Column(db.String(200))
     date_commission = db.Column(db.DateTime, default=datetime.utcnow)
@@ -93,9 +93,10 @@ class engineer(db.Model):
 
 
 class engineer_detail(db.Model):
-    job_id = db.Column(db.Integer, primary_key=True)
-    engineer_id = db.Column(db.Integer, primary_key=True)
-    engineer_name = db.Column(db.String(200), primary_key=True)
+    auto_id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer)
+    engineer_id = db.Column(db.Integer)
+    engineer_name = db.Column(db.String(200))
     engineer_contact = db.Column(db.String(200))
     engineer_phone = db.Column(db.String(200))
 
@@ -161,8 +162,9 @@ class jobs_detail(db.Model):
 
 
 class job_engineer(db.Model):
-    job_id = db.Column(db.Integer, primary_key=True)
-    engineer_id = db.Column(db.Integer, primary_key=True)
+    auto_id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer)
+    engineer_id = db.Column(db.Integer)
 
     def __repr__(self):
         return f"<JobEngineer {self.job_id}:{self.engineer_id}>"
@@ -479,6 +481,30 @@ def job_commission_edit(job_id):
         commission_lines_for_job=commission_lines,
     )
 
+@app.route("/detail/delete_commission/<int:commission_line_id>", methods=["POST"])
+def job_commission_delete(commission_line_id):
+    """Deletes the commission entry (by commission_line_id) from jobs_commission_line."""
+    try:
+        # delete from the actual table, not the view
+        commission_line = jobs_commission_line.query.get_or_404(commission_line_id)
+
+        # find related job_id via parent commission
+        parent_commission = jobs_commission.query.filter_by(commission_id=commission_line.commission_id).first()
+        job_id = parent_commission.job_id if parent_commission else None
+
+        db.session.delete(commission_line)
+        db.session.commit()
+
+        if job_id:
+            return redirect(f"/detail/{job_id}")
+        else:
+            return redirect("/")
+    except Exception as e:
+        db.session.rollback()
+        log.exception("Error deleting job commission line")
+        return f"There was an issue deleting the job commission line: {e}", 500
+
+
 @app.route('/detail/<int:job_id>/edit_engineer', methods=['POST'])
 def job_engineer_edit(job_id):
     print("POST received for job_id:", job_id)
@@ -509,10 +535,15 @@ def job_engineer_edit(job_id):
 def job_sales_edit(job_id):
     print("POST received for sales_id:")
     selected_sales_name = request.form.get('sales_name')
-    job_percentage = request.form.get('job_percentage')
-    selected_sales = sales.query.filter_by(sales_name=selected_sales_name).first()
-    if not selected_sales:
-        return 'Sales not found', 400
+    job_percentage = request.form.get('job_percentage') or 100
+    if job_percentage:
+        try:
+            float(job_percentage)
+        except ValueError:
+            return "Invalid job percentage. Must be numeric.", 400
+        selected_sales = sales.query.filter_by(sales_name=selected_sales_name).first()
+        if not selected_sales:
+            return 'Sales not found', 400
 
     # Check if this job-sales pair already exists to avoid duplicates
     existing_job_sales = jobs_sales.query.filter_by(job_id=job_id, sales_id=selected_sales.sales_id).first()
@@ -537,7 +568,7 @@ def job_sales_delete(auto_id):
     """Deletes the sales entry (by auto_id) from jobs_sales."""
     try:
         sales_to_delete = jobs_sales.query.get_or_404(auto_id)
-        job_id = sales_to_delete.job_id  # store job_id before delete
+        job_id = sales_to_delete.job_id
         db.session.delete(sales_to_delete)
         db.session.commit()
         return redirect(f"/detail/{job_id}")
@@ -545,6 +576,20 @@ def job_sales_delete(auto_id):
         db.session.rollback()
         log.exception("Error deleting job sales")
         return f"There was an issue deleting the job sales: {e}", 500
+
+@app.route("/detail/delete_engineer/<int:auto_id>", methods=["POST"])
+def job_engineer_delete(auto_id):
+    """Deletes the engineer entry (by auto_id) from jobs_engineer."""
+    try:
+        engineer_to_delete = job_engineer.query.get_or_404(auto_id)
+        job_id = engineer_to_delete.job_id
+        db.session.delete(engineer_to_delete)
+        db.session.commit()
+        return redirect(f"/detail/{job_id}")
+    except Exception as e:
+        db.session.rollback()
+        log.exception("Error deleting job engineer")
+        return f"There was an issue deleting the job engineer: {e}", 500
 
 @app.route('/sales', methods=['GET', 'POST'])
 def sales_team():

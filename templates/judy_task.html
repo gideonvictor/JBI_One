@@ -1,10 +1,22 @@
-<h2 class="text-center"><a class="btn btn-outline-dark" href="/detail/{{job_detail.job_id}}/judy_edit">Edit</a> Judy Task</h2>
+<h2 class="text-center">
+  <a class="btn btn-outline-dark" href="/detail/{{ job_detail.job_id }}/judy_edit">Edit</a>
+  Judy Task
+</h2>
+
 <table class="table table-striped">
-    <tbody>
-        <tr>
-            <td style="text-align: left; white-space: pre-wrap; word-wrap: break-word;">
-                {{ job_detail.judy_task if job_detail.judy_task is not none else '' }}
-            </td>
-        </tr>
-    </tbody>
+  <tbody>
+    <tr>
+      <td
+        style="
+          text-align: left;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          line-height: 1.5;
+          min-height: 5em;
+        "
+      >
+        {{ job_detail.judy_task if job_detail.judy_task is not none else '' }}
+      </td>
+    </tr>
+  </tbody>
 </table>

@@ -1,10 +1,28 @@
 <form action="/detail/{{ job_detail.job_id }}/judy_edit" method="POST">
-<h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button><a class="btn btn-outline-secondary" href="/detail/{{ job_detail.job_id }}">Cancel</a> Judy Task</h2>
+  <h2 class="text-center">
+    <button class="btn btn-outline-dark" type="submit">Save</button>
+    <button
+      class="btn btn-outline-dark"
+      type="button"
+      onclick="window.location.href='/detail/{{ job_detail.job_id }}';"
+    >
+      Cancel
+    </button>
+    Judy Task
+  </h2>
+
   <table class="table table-striped">
     <tbody>
-        <tr>
-            <td><input style="width:100%; color: #000;" type="text" name="judy_task" id="judy_task" value="{{ job_detail.judy_task if job_detail.judy_task is not none else '' }}"></td>
-        </tr>
+      <tr>
+        <td>
+          <textarea
+            name="judy_task"
+            id="judy_task"
+            rows="8"
+            style="width:100%; color:#000; resize:vertical; white-space:pre-wrap;"
+          >{{ job_detail.judy_task if job_detail.judy_task is not none else '' }}</textarea>
+        </td>
+      </tr>
     </tbody>
-</table>
+  </table>
 </form>

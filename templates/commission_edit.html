@@ -1,21 +1,38 @@
 <form action="/detail/{{ job_detail.job_id }}/edit_commission" method="POST">
-  <h2 class="text-center"><button class="btn btn-outline-dark" type="submit">Save</button><a class="btn btn-outline-secondary" href="/detail/{{ job_detail.job_id }}">Cancel</a> Commission Details</h2>
+  <h2 class="text-center">
+    <button class="btn btn-outline-dark" type="submit">Save</button>
+    <button
+      class="btn btn-outline-dark"
+      type="button"
+      onclick="window.location.href='/detail/{{ job_detail.job_id }}';"
+    >
+      Cancel
+    </button>
+    Commission Details
+  </h2>
   <table class="table table-striped">
     <tbody>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Purchase Amount</td>
+      <tr class="row row-cols-2">
+        <td style="text-align: right;">Purchase Amount</td>
             <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}"></td>
-        </tr>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Commission at Sale</td>
+      </tr>
+      <tr class="row row-cols-2">
+        <td style="text-align: right;">Commission at Sale</td>
             <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}"></td>
-        </tr>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Notes</td>
-            <td style="text-align: left;"><input style="width:100%; color: #000;" class="textbox" type="text" name="notes" id="notes" value="{{parent_commission_id.notes if parent_commission_id.notes is not none else ''}}"></td>
-        </tr>
+      </tr>
+      <tr class="row row-cols-2">
+        <td style="text-align: right;">Notes</td>
+        <td>
+          <textarea
+            name="notes"
+            id="notes"
+            rows="8"
+            style="width:100%; color:#000; resize:vertical; white-space:pre-wrap;"
+          >{{ parent_commission_id.notes if parent_commission_id.notes is not none else '' }}</textarea>
+        </td>
+      </tr>
     </tbody>
-</table>
+  </table>
 </form>
 <div class = "col-12">
         <form action="/detail/{{ job_detail.job_id }}/commission_line" method="POST">

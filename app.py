@@ -348,11 +348,53 @@ def detail_edit(job_id):
 
     if request.method == "POST":
         try:
-            # Update all editable fields using a loop
+            # Update all editable fields
             editable_fields = [
                 "project_name", "account", "reference_contact", "phone_number",
                 "equipment_description", "jbi_number", "market", "status",
-                "contractor", "order_date", "ship_date", "complete", "judy_task",
+                "contractor", "order_date", "ship_date", "complete",
+            ]
+            for field in editable_fields:
+                setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
+
+            db.session.commit()
+            return redirect(f"/detail/{job_id}")
+
+        except Exception:
+            db.session.rollback()
+            log.exception(f"Error updating job detail for job_id={job_id}")
+            return "There was an issue updating the header", 500
+
+    return render_template(
+        "detail_edit_job.html",
+        job_detail=job_detail,
+        job_detail_totals=job_detail_totals,
+        jobs_summary=jobs_summary,
+        eng=eng,
+        sales_details_for_job=sales_details_for_job,
+        engineers_list=engineer.query.all(),
+        sales_list=sales.query.all(),
+        parent_commission_id=parent_commission,
+        commission_lines_for_job=commission_lines,
+    )
+
+@app.route("/detail/<int:job_id>/judy_edit", methods=["GET", "POST"])
+def detail_edit_judy(job_id):
+    """Edit Judy task information."""
+    job_detail = jobs_detail.query.get_or_404(job_id)
+    jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
+    job_detail_totals = get_job_totals(job_id)
+
+    eng = engineer_detail.query.filter_by(job_id=job_id).all()
+    parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
+    sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
+
+    if request.method == "POST":
+        try:
+            # Update all editable fields using a loop
+            editable_fields = [
+                "judy_task",
             ]
             for field in editable_fields:
                 setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
@@ -367,7 +409,7 @@ def detail_edit(job_id):
 
     # GET request: render edit page
     return render_template(
-        "detail_edit_job.html",
+        "detail_edit_judy.html",
         job_detail=job_detail,
         job_detail_totals=job_detail_totals,
         jobs_summary=jobs_summary,

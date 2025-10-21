@@ -423,7 +423,7 @@ def detail_edit_judy(job_id):
 
 @app.route('/engineers', methods=['GET', 'POST'])
 def engineers():
-    engineers_list = engineer.query.order_by(engineer.engineer_name).all(),
+    engineers_list = engineer.query.order_by(engineer.engineer_name).all()
     if request.method == 'POST':
         engineer_name = request.form.get('engineer_name')
         engineer_contact = request.form.get('engineer_contact')

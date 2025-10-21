@@ -13,11 +13,11 @@
     <tbody>
       <tr class="row row-cols-2">
         <td style="text-align: right;">Purchase Amount</td>
-            <td style="text-align: left;"><input style="width:100%;" class="textbox" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}"></td>
+            <td style="text-align: left;"><input class="form-control" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}"></td>
       </tr>
       <tr class="row row-cols-2">
         <td style="text-align: right;">Commission at Sale</td>
-            <td style="text-align: left;"><input style="width:100%;" class="textbox" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}"></td>
+            <td style="text-align: left;"><input class="form-control" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}"></td>
       </tr>
       <tr class="row row-cols-2">
         <td style="text-align: right;">Notes</td>
@@ -26,7 +26,8 @@
             name="notes"
             id="notes"
             rows="8"
-            style="width:100%; color:#000; resize:vertical; white-space:pre-wrap;"
+            class="form-control"
+            style="white-space:pre-wrap;"
           >{{ parent_commission_id.notes if parent_commission_id.notes is not none else '' }}</textarea>
         </td>
       </tr>
@@ -43,8 +44,8 @@
                 <th>Actions</th>
               </tr>
               <tr>
-                <td><input style="width:100%;" type="text" name="commission_amount" id="commission_amount"></td>
-                <td><input style="width:100%;" type="date" name="date" id="date"></td>
+                <td><input class="form-control" type="text" name="commission_amount" id="commission_amount"></td>
+                <td><input class="form-control" type="date" name="date" id="date"></td>
                 <td style="max-width:50px">
           <button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button>
           </tr>

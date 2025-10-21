@@ -6,11 +6,13 @@
 
 {% block body %}
 
-    <h1 style="text-align: center">JBI Water - Sales</h1>
-
+    <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">Sales</h1>
     <div class="row">
     <div class = "col-12">
-        <form action="/sales" method="POST">
+      <div class="container my-4">
+        <div class="row justify-content-center">
+          <div class="col-auto">
+            <form action="/sales" method="POST">
           <table>
             <tbody>
               <tr>
@@ -20,17 +22,18 @@
                 <th>Actions</th>
               </tr>
               <tr>
-                <td><input style="width:100%;" type="text" name="sales_name" id="sales_name"></td>
-                <td><input style="width:100%;" type="text" name="sales_contact" id="sales_contact"></td>
-                <td><input style="width:100%;" type="text" name="sales_phone" id="sales_phone"></td>
+                <td><input class="form-control" type="text" name="sales_name" id="sales_name"></td>
+                <td><input class="form-control" type="text" name="sales_contact" id="sales_contact"></td>
+                <td><input class="form-control" type="text" name="sales_phone" id="sales_phone"></td>
           <td style="max-width:50px">
           <input class="btn btn-outline-primary" type="submit" value="Add Sales"></td>
           </tr>
           </tbody>
           </table>
         </form>
-
-
+          </div>
+        </div>
+      </div>
     {% if sales_list|length < 1 %}
     <h4 style="text-align: center">There are no sales.</h4>
     {% else %}

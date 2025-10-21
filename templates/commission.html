@@ -27,9 +27,6 @@
 </table>
 
 <div class = "col-12">
-    {% if commission_lines_for_job|length < 1 %}
-    <h4 style="text-align: center">There are no commissions.</h4>
-    {% else %}
     <table class="table table-striped">
         <tr>
             <th>Commission Amount</th>
@@ -64,7 +61,5 @@
             </td>
         </tr>
         {% endfor %}
-    </table>
-{% endif %}
     </table>
   </div>

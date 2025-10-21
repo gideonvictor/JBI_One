@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block body %}
-
     <form action="/" method="POST" class="d-flex justify-content-center align-items-center gap-3 my-3">
       <h1 class="m-0">JBI Water - Active Jobs</h1>
       <button type="submit" class="btn btn-outline-primary">Add Job</button>
@@ -14,7 +13,6 @@
     {% include 'detail_tiles.html' with context %}
   
 <div class="row">
-    <div class = "col-12">
     {% if jobs_summary|length < 1 %}
     <h4 style="text-align: center">There are no jobs_summary.</h4>
     {% else %}
@@ -62,7 +60,6 @@
             </tr>
         {% endfor %}
     </table>
-  </div>
   </div>
     {% endif %}
 </div>

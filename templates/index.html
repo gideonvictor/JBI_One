@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block body %}
-    <form action="/" method="POST" class="d-flex justify-content-center align-items-center gap-3 my-3">
-      <h1 class="m-0">JBI Water - Active Jobs</h1>
-      <button type="submit" class="btn btn-outline-primary">Add Job</button>
-    </form>
+<form action="/" method="POST" class="d-flex justify-content-center align-items-center gap-3 my-3">
+    <h1 class="m-0">JBI Water - Active Jobs</h1>
+    <button type="submit" class="btn btn-outline-primary">Add Job</button>
+</form>
 
-    {% include 'detail_tiles.html' with context %}
+{% include 'detail_tiles.html' with context %}
   
 <div class="row">
     {% if jobs_summary|length < 1 %}
@@ -54,13 +54,13 @@
                 <td>{{ '%.2f'|format(js.commission_net_due) if js.commission_net_due is not none else '' }}</td>
                 <td>
                     <div class="btn-group-vertical">
-                    <a class="btn btn-outline-primary" href="/detail/{{js.job_id}}">Detail</a>
+                        <a class="btn btn-outline-primary" href="/detail/{{js.job_id}}">Detail</a>
                     </div>
                 </td>
             </tr>
         {% endfor %}
     </table>
-  </div>
-    {% endif %}
+{% endif %}
+</div>
 </div>
 {% endblock %}

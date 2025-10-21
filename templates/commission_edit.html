@@ -1,12 +1,7 @@
 <form action="/detail/{{ job_detail.job_id }}/edit_commission" method="POST">
   <h2 class="text-center">
     <button class="btn btn-outline-light" type="submit">Save</button>
-    <button class="btn btn-outline-primary"
-      type="button"
-      onclick="window.location.href='/detail/{{ job_detail.job_id }}';"
-    >
-      Cancel
-    </button>
+    <button class="btn btn-outline-primary" type="button" onclick="window.location.href='/detail/{{ job_detail.job_id }}';">Cancel</button>
     Commission Details
   </h2>
   <table class="table table-striped">
@@ -35,33 +30,29 @@
   </table>
 </form>
 <div class = "col-12">
-    <table class="table table-striped">
-        <tr>
-            <th>Commission Amount</th>
-            <th>Date</th>
-            <th>Actions</th>
-        </tr>
-        <form action="/detail/{{ job_detail.job_id }}/commission_line" method="POST">
-        <tr>
-            <td><input class="form-control" type="text" name="commission_amount" id="commission_amount"></td>
-            <td><input class="form-control" type="date" name="date" id="date"></td>
-            <td style="max-width:50px"><button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button></td>
-        </tr>
-        </form>
-        {% for c in commission_lines_for_job %}
-        <tr>
-            <td>{{ c.commission_amount }}</td>
-            <td>{{ c.date_commission }}</td>
-            <td>
-                <div class="btn-group-vertical">
-                    <button type="button" class="btn btn-outline-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal{{ c.commission_id }}">
-                        Delete
-                    </button>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-  </div>
+  <table class="table table-striped">
+    <tr>
+      <th>Commission Amount</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+    <form action="/detail/{{ job_detail.job_id }}/commission_line" method="POST">
+    <tr>
+      <td><input class="form-control" type="text" name="commission_amount" id="commission_amount"></td>
+      <td><input class="form-control" type="date" name="date" id="date"></td>
+      <td style="max-width:50px"><button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button></td>
+    </tr>
+    </form>
+    {% for c in commission_lines_for_job %}
+    <tr>
+      <td>{{ c.commission_amount }}</td>
+      <td>{{ c.date_commission }}</td>
+      <td>
+        <div class="btn-group-vertical">
+          <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ c.commission_id }}">Delete</button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>

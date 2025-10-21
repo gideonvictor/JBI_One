@@ -9,6 +9,14 @@
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"> -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
     {% block head %}{% endblock %}
+    <style>
+      table {
+        font-size: 1.15rem; /* or try 1.2rem for even bigger text */
+      }
+      th, td {
+        vertical-align: middle;
+      }
+    </style>
 </head>
 <body class="snippet-body">
 <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">

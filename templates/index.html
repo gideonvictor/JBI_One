@@ -30,21 +30,21 @@
             <th>Actions</th>
         </tr>
         <form action="/" method="GET">
-        <tr>
-          <td><input class="form-control" type="text" name="project_name" id="project_name"></td>
-          <td><input class="form-control" type="text" name="jbi_number" id="jbi_number"></td>
-          <td><input class="form-control" type="text" name="account" id="account"></td>
-          <td><input class="form-control" type="text" name="market" id="market"></td>
-          <td><input class="form-control" type="text" name="contractor" id="contractor"></td>
-          <td></td>
-          <td></td>
-          <td>
-              <div class="btn-group-vertical">
-              <input class="btn btn-outline-primary" type="submit" value="Search"></td>
-              </div>
-          </td>
-          </tr>
-          </form>
+            <tr>
+                <td><input class="form-control" type="text" name="project_name" id="project_name" value="{{ filters.get('project_name', '') }}"></td>
+                <td><input class="form-control" type="text" name="jbi_number" id="jbi_number" value="{{ filters.get('jbi_number', '') }}"></td>
+                <td><input class="form-control" type="text" name="account" id="account" value="{{ filters.get('account', '') }}"></td>
+                <td><input class="form-control" type="text" name="market" id="market" value="{{ filters.get('market', '') }}"></td>
+                <td><input class="form-control" type="text" name="contractor" id="contractor" value="{{ filters.get('contractor', '') }}"></td>
+                <td></td>
+                <td></td>
+                <td>
+                <div class="btn-group-vertical">
+                    <input class="btn btn-outline-primary" type="submit" value="Search">
+                </div>
+                </td>
+            </tr>
+        </form>
         {% for js in jobs_summary %}
             <tr>
                 <td>{{ js.project_name if js.project_name is not none else '' }}</td>

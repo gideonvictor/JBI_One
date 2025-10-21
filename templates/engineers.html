@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block body %}
+
     <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">Engineers</h1>
     <div class="row">
     <div class = "col-12">
@@ -12,27 +13,24 @@
         <div class="row justify-content-center">
           <div class="col-auto">
             <form action="/engineers" method="POST">
-              <table class="table table-borderless align-middle">
-                <thead>
-                  <tr>
-                    <th>Engineer Name</th>
-                    <th>Contact</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><input class="form-control" type="text" name="engineer_name" id="engineer_name" required></td>
-                    <td><input class="form-control" type="text" name="engineer_contact" id="engineer_contact"></td>
-                    <td><input class="form-control" type="text" name="engineer_phone" id="engineer_phone"></td>
-                    <td>
-                      <input class="btn btn-outline-primary" type="submit" value="Add Engineer">
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </form>
+          <table class="table table-borderless align-middle">
+            <tbody>
+              <tr>
+                <th>Engineer Name</th>
+                <th>Contact</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+              <tr>
+                <td><input class="form-control" type="text" name="engineer_name" id="engineer_name" required></td>
+                <td><input class="form-control" type="text" name="engineer_contact" id="engineer_contact"></td>
+                <td><input class="form-control" type="text" name="engineer_phone" id="engineer_phone"></td>
+          <td style="max-width:50px">
+          <input class="btn btn-outline-primary" type="submit" value="Add Engineer"></td>
+          </tr>
+          </tbody>
+          </table>
+        </form>
           </div>
         </div>
       </div>

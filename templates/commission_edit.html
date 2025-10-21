@@ -35,34 +35,22 @@
   </table>
 </form>
 <div class = "col-12">
-        <form action="/detail/{{ job_detail.job_id }}/commission_line" method="POST">
-          <table>
-            <tbody>
-              <tr>
-                <th>Commission Amount</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-              <tr>
-                <td><input class="form-control" type="text" name="commission_amount" id="commission_amount"></td>
-                <td><input class="form-control" type="date" name="date" id="date"></td>
-                <td style="max-width:50px">
-          <button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button>
-          </tr>
-          </tbody>
-          </table>
-        </form>
-
-
     {% if commission_lines_for_job|length < 1 %}
     <h4 style="text-align: center">There are no commissions.</h4>
-{% else %}
+    {% else %}
     <table class="table table-striped">
         <tr>
             <th>Commission Amount</th>
             <th>Date</th>
             <th>Actions</th>
         </tr>
+        <form action="/detail/{{ job_detail.job_id }}/commission_line" method="POST">
+        <tr>
+            <td><input class="form-control" type="text" name="commission_amount" id="commission_amount"></td>
+            <td><input class="form-control" type="date" name="date" id="date"></td>
+            <td style="max-width:50px"><button class="btn btn-outline-light" type="submit" value="Add Commission Line">Add</button></td>
+        </tr>
+        </form>
         {% for c in commission_lines_for_job %}
         <tr>
             <td>{{ c.commission_amount }}</td>

@@ -13,7 +13,7 @@
         <div class="row justify-content-center">
           <div class="col-auto">
             <form action="/sales" method="POST">
-          <table>
+          <table class="table table-borderless align-middle">
             <tbody>
               <tr>
                 <th>Sales Name</th>
@@ -22,7 +22,7 @@
                 <th>Actions</th>
               </tr>
               <tr>
-                <td><input class="form-control" type="text" name="sales_name" id="sales_name"></td>
+                <td><input class="form-control" type="text" name="sales_name" id="sales_name" required></td>
                 <td><input class="form-control" type="text" name="sales_contact" id="sales_contact"></td>
                 <td><input class="form-control" type="text" name="sales_phone" id="sales_phone"></td>
           <td style="max-width:50px">
@@ -35,7 +35,7 @@
         </div>
       </div>
     {% if sales_list|length < 1 %}
-    <h4 style="text-align: center">There are no sales.</h4>
+    <h4 style="text-align: center">There are no sales representatives.</h4>
     {% else %}
     <table class="table table-striped">
         <tr>

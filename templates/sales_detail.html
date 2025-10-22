@@ -6,7 +6,7 @@
 
 {% block body %}
 <form action="/sales/{{ sales.sales_id }}/detail" method="POST">
-  <h2 class="text-center">
+    <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">
     <button class="btn btn-outline-light" type="submit">Save</button>
     <button class="btn btn-outline-primary"
         type="button"
@@ -15,23 +15,68 @@
         Cancel
     </button>
     {{ sales.sales_name }} - Details
-    </h2>
-
-  <table class="table table-striped">
-    <tbody>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Name</td>
-            <td style="text-align: left;"><input class="form-control" type="text" name="sales_name" id="sales_name" value="{{ sales.sales_name or '' }}"></td>
-        </tr>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Contact</td>
-            <td style="text-align: left;"><input class="form-control" type="text" name="sales_contact" id="sales_contact" value="{{ sales.sales_contact or '' }}"></td>
-        </tr>
-        <tr class="row row-cols-2">
-            <td style="text-align: right;">Phone</td>
-            <td style="text-align: left;"><input class="form-control" type="text" name="sales_phone" id="sales_phone" value="{{ sales.sales_phone or '' }}"></td>
-        </tr>
-    </tbody>
-</table>
+    </h1>
+    <div class="row">
+    <div class = "col-12">
+        {% include 'detail_tiles.html' with context %}
+      <div class="container my-4">
+        <div class="row justify-content-center">
+          <div class="col-auto">
+            
+          
+    <table class="table table-borderless align-middle">
+            <tbody>
+              <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Phone</th>
+              </tr>
+              <tr>
+                <td><input class="form-control" type="text" name="sales_name" id="sales_name" value="{{ sales.sales_name or '' }}" required></td>
+                <td><input class="form-control" type="text" name="sales_contact" id="sales_contact" value="{{ sales.sales_contact or '' }}"></td>
+                <td><input class="form-control" type="text" name="sales_phone" id="sales_phone" value="{{ sales.sales_phone or '' }}"></td>
+          </tr>
+          </tbody>
+          </table>
+        
+          </div>
+        </div>
+      </div>
+      </div>
+      </div>
 </form>
+<div class="row">
+    <div class = "col-12">
+    <table class="table table-striped">
+        <tr>
+            <th>Project</th>
+            <th>JBI #</th>
+            <th>Account</th>
+            <th>Market</th>
+            <th>Contractor</th>
+            <th>Commission at Sale</th>
+            <th>Commission Net Due</th>
+            <th>Job Percentage</th>
+            <th>Actions</th>
+        </tr>
+    {% for job, pct in jobs_summary %}
+        <tr>
+            <td>{{ job.project_name or '' }}</td>
+            <td>{{ job.jbi_number or '' }}</td>
+            <td>{{ job.account or '' }}</td>
+            <td>{{ job.market or '' }}</td>
+            <td>{{ job.contractor or '' }}</td>
+            <td>{{ '%.2f'|format(job.commission_at_sale|float) if job.commission_at_sale else '' }}</td>
+            <td>{{ '%.2f'|format(job.commission_net_due|float) if job.commission_net_due else '' }}</td>
+            <td>{{ '%.2f'|format(pct |float) if pct else '' }}%</td>
+            <td>
+                <div class="btn-group-vertical">
+                    <a class="btn btn-outline-primary" href="/detail/{{ job.job_id }}">Detail</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    </div>
+</div>
 {% endblock %}

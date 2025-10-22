@@ -663,7 +663,31 @@ def sales_team():
 
 @app.route('/sales/<int:sales_id>/detail', methods=['GET', 'POST'])
 def sales_detail_view(sales_id):
-    sales_member= sales.query.get_or_404(sales_id)
+    sales_member = sales.query.get_or_404(sales_id)
+
+    jobs_summary = (
+        db.session.query(jobs_index,jobs_sales.job_percentage)
+        .join(jobs_sales, jobs_index.job_id == jobs_sales.job_id)
+        .filter(jobs_sales.sales_id == sales_id)
+        .order_by(jobs_index.job_id)
+        .all()
+    )
+
+    job_detail_totals = {
+    "purchase_amount": sum(
+        _to_float(job.purchase_amount) * (_to_float(pct) / 100.0)
+        for job, pct in jobs_summary
+    ),
+    "commission_at_sale": sum(
+        _to_float(job.commission_at_sale) * (_to_float(pct) / 100.0)
+        for job, pct in jobs_summary
+    ),
+    "commission_net_due": sum(
+        _to_float(job.commission_net_due) * (_to_float(pct) / 100.0)
+        for job, pct in jobs_summary
+    ),
+    }
+
     if request.method == 'POST':
         sales_member.sales_name = request.form.get('sales_name') or None
         sales_member.sales_contact = request.form.get('sales_contact') or None
@@ -677,8 +701,8 @@ def sales_detail_view(sales_id):
             log.error(error_message + str(e))
             print(error_message + str(e))
             return 'There was an issue updating the sales information', 500
-    # GET
-    return render_template('sales_detail.html', sales=sales_member)
+
+    return render_template('sales_detail.html', sales=sales_member, jobs_summary=jobs_summary, job_detail_totals=job_detail_totals)
 
 @app.route('/delete/sales/<int:sales_id>', methods=['POST'])
 def sales_team_delete(sales_id):

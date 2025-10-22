@@ -60,22 +60,35 @@
             <th>Actions</th>
         </tr>
     {% for job, pct in jobs_summary %}
-        <tr>
-            <td>{{ job.project_name or '' }}</td>
-            <td>{{ job.jbi_number or '' }}</td>
-            <td>{{ job.account or '' }}</td>
-            <td>{{ job.market or '' }}</td>
-            <td>{{ job.contractor or '' }}</td>
-            <td>{{ '%.2f'|format(job.commission_at_sale|float) if job.commission_at_sale else '' }}</td>
-            <td>{{ '%.2f'|format(job.commission_net_due|float) if job.commission_net_due else '' }}</td>
-            <td>{{ '%.2f'|format(pct |float) if pct else '' }}%</td>
-            <td>
-                <div class="btn-group-vertical">
-                    <a class="btn btn-outline-primary" href="/detail/{{ job.job_id }}">Detail</a>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
+<tr class="{% if job.commission_net_due and job.commission_net_due|float == 0 %}table-success{% endif %}">
+    <td>{{ job.project_name or '' }}</td>
+    <td>{{ job.jbi_number or '' }}</td>
+    <td>{{ job.account or '' }}</td>
+    <td>{{ job.market or '' }}</td>
+    <td>{{ job.contractor or '' }}</td>
+
+    <td>
+        {% if job.commission_at_sale %}
+            ${{ '%.2f'|format((job.commission_at_sale|float) * (pct|float / 100)) }}
+        {% else %}
+            $0.00
+        {% endif %}
+    </td>
+
+    <td>
+        {% if job.commission_net_due %}
+            ${{ '%.2f'|format((job.commission_net_due|float) * (pct|float / 100)) }}
+        {% elif job.commission_at_sale %}
+            ${{ '%.2f'|format((job.commission_at_sale|float) * (pct|float / 100)) }}
+        {% else %}
+            $0.00
+        {% endif %}
+    </td>
+
+    <td>{{ '%.2f'|format(pct|float) if pct else '0.00' }}%</td>
+    <td><a class="btn btn-outline-primary" href="/detail/{{ job.job_id }}">Detail</a></td>
+</tr>
+{% endfor %}
     </table>
     </div>
 </div>

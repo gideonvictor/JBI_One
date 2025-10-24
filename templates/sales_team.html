@@ -6,38 +6,39 @@
 
 {% block body %}
 
-    <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">Sales</h1>
-    <div class="row">
-    <div class = "col-12">
-      <div class="container my-4">
-        <div class="row justify-content-center">
-          <div class="col-auto">
-            <form action="/sales" method="POST">
-          <table class="table table-borderless align-middle">
-            <tbody>
-              <tr>
-                <th>Sales Name</th>
-                <th>Contact</th>
-                <th>Phone</th>
-                <th>Actions</th>
-              </tr>
-              <tr>
-                <td><input class="form-control" type="text" name="sales_name" id="sales_name" required></td>
-                <td><input class="form-control" type="text" name="sales_contact" id="sales_contact"></td>
-                <td><input class="form-control" type="text" name="sales_phone" id="sales_phone"></td>
-          <td style="max-width:50px">
-          <input class="btn btn-outline-primary" type="submit" value="Add Sales"></td>
-          </tr>
-          </tbody>
-          </table>
-        </form>
-          </div>
+<h1 class="d-flex justify-content-center align-items-center gap-3 my-3">Sales</h1>
+<div class="row">
+  <div class = "col-12">
+    <div class="container my-4">
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <form action="/sales" method="POST">
+        <table class="table table-borderless align-middle">
+          <tbody>
+            <tr>
+              <th>Sales Name</th>
+              <th>Contact</th>
+              <th>Phone</th>
+              <th>Actions</th>
+            </tr>
+            <tr>
+              <td><input class="form-control" type="text" name="sales_name" id="sales_name" required></td>
+              <td><input class="form-control" type="text" name="sales_contact" id="sales_contact"></td>
+              <td><input class="form-control" type="text" name="sales_phone" id="sales_phone"></td>
+        <td style="max-width:50px">
+        <input class="btn btn-outline-primary" type="submit" value="Add Sales"></td>
+        </tr>
+        </tbody>
+        </table>
+      </form>
         </div>
       </div>
-    {% if sales_list|length < 1 %}
-    <h4 style="text-align: center">There are no sales representatives.</h4>
-    {% else %}
+    </div>
+  {% if sales_list|length < 1 %}
+  <h4 style="text-align: center">There are no sales representatives.</h4>
+  {% else %}
     <table class="table table-striped">
+      <tbody>
         <tr>
             <th>Sales Name</th>
             <th>Contact</th>
@@ -45,17 +46,17 @@
             <th>Actions</th>
         </tr>
         {% for s in sales_list %}
-<tr>
-    <td>{{ s.sales_name if s.sales_name is not none else '' }}</td>
-    <td>{{ s.sales_contact if s.sales_contact is not none else '' }}</td>
-    <td>{{ s.sales_phone if s.sales_phone is not none else '' }}</td>
-    <td><a class="btn btn-outline-primary btn-sm" href="/sales/{{ s.sales_id }}/detail">Details</a></td>
-</tr>
-{% endfor %}
-
+        <tr>
+            <td>{{ s.sales_name if s.sales_name is not none else '' }}</td>
+            <td>{{ s.sales_contact if s.sales_contact is not none else '' }}</td>
+            <td>{{ s.sales_phone if s.sales_phone is not none else '' }}</td>
+            <td><a class="btn btn-outline-primary btn-sm" href="/sales/{{ s.sales_id }}/detail">Details</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-  </div>
-  </div>
     {% endif %}
+  </div>
+</div>
 </div>
 {% endblock %}

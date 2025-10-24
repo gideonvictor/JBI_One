@@ -272,7 +272,7 @@ def index():
             if value:
                 q = q.filter(getattr(jobs_index, field).ilike(f"%{value}%"))
 
-        jobs_summary = q.order_by(jobs_index.job_id).all()
+        jobs_summary = q.order_by(jobs_index.job_id.desc()).all()
         job_detail_totals = {
             "purchase_amount": sum(_to_float(js.purchase_amount) for js in jobs_summary),
             "commission_at_sale": sum(_to_float(js.commission_at_sale) for js in jobs_summary),
@@ -463,8 +463,35 @@ def engineers_delete(engineer_id):
 @app.route('/engineers/<int:engineer_id>/detail', methods=['GET', 'POST'])
 def engineer_detail_view(engineer_id):
     eng = engineer.query.get_or_404(engineer_id)
+    if request.method == 'GET':
 
-    if request.method == 'POST':
+        # Base query
+        q = (
+        db.session.query(jobs_index, job_engineer.engineer_id)
+        .join(job_engineer, jobs_index.job_id == job_engineer.job_id)
+        .filter(job_engineer.engineer_id == engineer_id)
+    )
+        filters = {
+            "project_name": request.args.get("project_name", type=str),
+            "account": request.args.get("account", type=str),
+            "jbi_number": request.args.get("jbi_number", type=str),
+            "market": request.args.get("market", type=str),
+            "contractor": request.args.get("contractor", type=str),
+        }
+        for field, value in filters.items():
+            if value:
+                q = q.filter(getattr(jobs_index, field).ilike(f"%{value}%"))
+
+        jobs_summary = q.order_by(jobs_index.job_id.desc()).all()
+        job_detail_totals = {
+            "purchase_amount": sum(_to_float(job.purchase_amount) for job, _ in jobs_summary),
+            "commission_at_sale": sum(_to_float(job.commission_at_sale) for job, _ in jobs_summary),
+            "commission_net_due": sum(_to_float(job.commission_net_due) for job, _ in jobs_summary),
+}
+
+        return render_template("engineers_detail.html", engineer=eng, jobs_summary=jobs_summary, job_detail_totals=job_detail_totals, filters=request.args)
+
+    elif request.method == 'POST':
         eng.engineer_name = request.form.get('engineer_name') or None
         eng.engineer_contact = request.form.get('engineer_contact') or None
         eng.engineer_phone = request.form.get('engineer_phone') or None
@@ -476,9 +503,16 @@ def engineer_detail_view(engineer_id):
             error_message = traceback.format_exc()
             log.error(error_message + str(e))
             print(error_message + str(e))
-            return 'There was an issue updating the engineer', 500
-    # GET
-    return render_template('engineers_detail.html', engineer=eng)
+            return 'There was an issue updating the sales information', 500
+
+    return render_template(
+        'engineers_detail.html',
+        engineer=eng,
+        jobs_summary=jobs_summary,
+        job_detail_totals=job_detail_totals,
+        filters=filters,
+    )
+
 
 @app.route("/detail/<int:job_id>/edit_commission", methods=["GET", "POST"])
 def job_commission_edit(job_id):
@@ -665,27 +699,44 @@ def sales_team():
 def sales_detail_view(sales_id):
     sales_member = sales.query.get_or_404(sales_id)
 
-    jobs_summary = (
-        db.session.query(jobs_index,jobs_sales.job_percentage)
+    # Base query
+    q = (
+        db.session.query(jobs_index, jobs_sales.job_percentage)
         .join(jobs_sales, jobs_index.job_id == jobs_sales.job_id)
         .filter(jobs_sales.sales_id == sales_id)
-        .order_by(jobs_index.job_id)
-        .all()
     )
 
+    # Filters
+    filters = {
+        "project_name": request.args.get("project_name", type=str),
+        "account": request.args.get("account", type=str),
+        "jbi_number": request.args.get("jbi_number", type=str),
+        "market": request.args.get("market", type=str),
+        "contractor": request.args.get("contractor", type=str),
+    }
+
+    # 🔧 Fix: replace None with empty string
+    filters = {k: (v or "") for k, v in filters.items()}
+
+    for field, value in filters.items():
+        if value:
+            q = q.filter(getattr(jobs_index, field).ilike(f"%{value}%"))
+
+    jobs_summary = q.order_by(jobs_index.job_id.desc()).all()
+
     job_detail_totals = {
-    "purchase_amount": sum(
-        _to_float(job.purchase_amount) * (_to_float(pct) / 100.0)
-        for job, pct in jobs_summary
-    ),
-    "commission_at_sale": sum(
-        _to_float(job.commission_at_sale) * (_to_float(pct) / 100.0)
-        for job, pct in jobs_summary
-    ),
-    "commission_net_due": sum(
-        _to_float(job.commission_net_due) * (_to_float(pct) / 100.0)
-        for job, pct in jobs_summary
-    ),
+        "purchase_amount": sum(
+            _to_float(job.purchase_amount) * (_to_float(pct) / 100.0)
+            for job, pct in jobs_summary
+        ),
+        "commission_at_sale": sum(
+            _to_float(job.commission_at_sale) * (_to_float(pct) / 100.0)
+            for job, pct in jobs_summary
+        ),
+        "commission_net_due": sum(
+            _to_float(job.commission_net_due) * (_to_float(pct) / 100.0)
+            for job, pct in jobs_summary
+        ),
     }
 
     if request.method == 'POST':
@@ -702,7 +753,14 @@ def sales_detail_view(sales_id):
             print(error_message + str(e))
             return 'There was an issue updating the sales information', 500
 
-    return render_template('sales_detail.html', sales=sales_member, jobs_summary=jobs_summary, job_detail_totals=job_detail_totals)
+    return render_template(
+        'sales_detail.html',
+        sales=sales_member,
+        jobs_summary=jobs_summary,
+        job_detail_totals=job_detail_totals,
+        filters=filters,
+    )
+
 
 @app.route('/delete/sales/<int:sales_id>', methods=['POST'])
 def sales_team_delete(sales_id):

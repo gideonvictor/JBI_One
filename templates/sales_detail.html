@@ -59,6 +59,23 @@
             <th>Job Percentage</th>
             <th>Actions</th>
         </tr>
+        <form action="/sales/{{ sales.sales_id }}/detail" method="GET">
+            <tr>
+                <td><input class="form-control" type="text" name="project_name" id="project_name" value="{{ filters.get('project_name', '') }}"></td>
+                <td><input class="form-control" type="text" name="jbi_number" id="jbi_number" value="{{ filters.get('jbi_number', '') }}"></td>
+                <td><input class="form-control" type="text" name="account" id="account" value="{{ filters.get('account', '') }}"></td>
+                <td><input class="form-control" type="text" name="market" id="market" value="{{ filters.get('market', '') }}"></td>
+                <td><input class="form-control" type="text" name="contractor" id="contractor" value="{{ filters.get('contractor', '') }}"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <div class="btn-group-vertical">
+                        <input class="btn btn-outline-primary" type="submit" value="Search">
+                    </div>
+                </td>
+            </tr>
+        </form>
     {% for job, pct in jobs_summary %}
 <tr class="{% if job.commission_net_due and job.commission_net_due|float == 0 %}table-success{% endif %}">
     <td>{{ job.project_name or '' }}</td>

@@ -2,12 +2,12 @@ import os
 import sys
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pymysql
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from config import (
     postgres_username,
@@ -777,20 +777,20 @@ def sales_team_delete(sales_id):
 
 @app.route("/judy_full_tasks", methods=["POST", "GET"])
 def judy_full_tasks():
-    all_tasks = (db.session.query(judy_task_line, jobs_index.project_name)
-        .outerjoin(jobs_index, jobs_index.job_id == judy_task_line.job_id)
-        .order_by(judy_task_line.flag_complete, judy_task_line.date)).all()
-    if request.method == "POST":
-        try:
-            job_id = (db.session.query(func.max(jobs.job_id)).scalar() or 0) + 1
-            db.session.add_all([jobs(job_id=job_id), jobs_commission(job_id=job_id)])
-            db.session.commit()
-            return redirect(f"/detail/{job_id}/edit")
-        except Exception as e:
-            db.session.rollback()
-            log.exception("Error adding new job")
-            return f"There was an issue adding your task: {str(e)}"
+    one_month_ago = datetime.utcnow().date() - timedelta(days=30)
 
+    all_tasks = (
+        db.session.query(judy_task_line, jobs_index.project_name)
+        .outerjoin(jobs_index, jobs_index.job_id == judy_task_line.job_id)
+        .filter(
+            or_(
+                judy_task_line.flag_complete == 0,
+                judy_task_line.date >= one_month_ago
+            )
+        )
+        .order_by(judy_task_line.flag_complete, judy_task_line.date)
+        .all()
+    )
     try:
         return render_template("judy_full_tasks.html", all_tasks=all_tasks)
     except Exception:

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Judy Tasks</title>
+{% endblock %}
+
+{% block body %}
+
+<h1 class="d-flex justify-content-center align-items-center gap-3 my-3">Judy Tasks</h1>
+<div class="row">
+    <table class="table table-striped">
+      <tbody>
+        <tr>
+            <th>Project Name</th>
+            <th>Task</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for att,project_name in all_tasks %}
+        <tr>
+            <td>{{ project_name if project_name is not none else '' }}</td>
+            <td>{{ att.task if att.task is not none else '' }}</td>
+            <td>
+                <form
+                action="{{ url_for('job_judy_toggle', job_id=att.job_id, task_id=att.task_id) }}"
+                method="POST"
+                style="display:inline;"
+                >
+                {% if att.flag_complete == 1 %}
+                    <button type="submit" class="btn btn-success btn-sm">DONE</button>
+                {% else %}
+                    <button type="submit" class="btn btn-warning btn-sm">NOT DONE</button>
+                {% endif %}
+                </form>
+            </td>
+            <td>{{ att.date if att.date is not none else '' }}</td>
+            <td>
+                <div class="btn-group-vertical">
+                    <a class="btn btn-outline-primary" href="/detail/{{ att.job_id }}">Detail</a>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+{% endblock %}

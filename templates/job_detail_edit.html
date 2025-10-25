@@ -1,15 +1,6 @@
 <form action="/detail/{{ job_detail.job_id }}/edit" method="POST">
-  <h2 class="text-center">
-    <button class="btn btn-outline-light" type="submit">Save</button>
-    <button class="btn btn-outline-primary"
-      type="button"
-      onclick="window.location.href='/detail/{{ job_detail.job_id }}';"
-    >
-      Cancel
-    </button>
-    Details
-  </h2>
-<table class="table table-striped">
+  {% include 'includes/_toolbar.html' with context %}
+  <table class="table table-striped">
     <tbody>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Project Name</td>
@@ -60,5 +51,5 @@
             <td style="text-align: left;"><input class="form-control" type="date" name="complete" id="complete" value="{{job_detail.complete if job_detail.complete is not none else ''}}"></td>
         </tr>
     </tbody>
-</table>
+  </table>
 </form>

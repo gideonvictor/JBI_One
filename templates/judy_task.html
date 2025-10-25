@@ -1,22 +1,68 @@
-<h2 class="text-center">
-  <a class="btn btn-primary" href="/detail/{{ job_detail.job_id }}/judy_edit">Edit</a>
-  Judy Task
-</h2>
-
+<h2 class="text-center">Judy Task</h2>
 <table class="table table-striped">
   <tbody>
     <tr>
-      <td
-        style="
-          text-align: left;
-          white-space: pre-wrap;
-          word-wrap: break-word;
-          line-height: 1.5;
-          min-height: 5em;
-        "
-      >
-        {{ job_detail.judy_task if job_detail.judy_task is not none else '' }}
+      <th>Task</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+
+    <!-- Add New Task Form -->
+    <form action="/detail/{{ job_detail.job_id }}/add_judy_task" method="POST">
+      <tr>
+        <td>
+          <textarea
+            name="judy_task"
+            id="judy_task"
+            rows="8"
+            class="form-control"
+            style="white-space:pre-wrap;"
+          ></textarea>
+        </td>
+        <td>
+          <input class="form-control" type="date" name="date" id="date">
+        </td>
+        <td></td>
+        <td>
+          <button class="btn btn-outline-light" type="submit">Add</button>
+        </td>
+      </tr>
+    </form>
+
+    {% for task in judy_tasks_for_job %}
+    <tr>
+      <td>{{ task.task }}</td>
+      <td>{{ task.date.strftime('%Y-%m-%d') if task.date else '' }}</td>
+      <td>
+        <form
+          action="{{ url_for('job_judy_toggle', job_id=job_detail.job_id, task_id=task.task_id) }}"
+          method="POST"
+          style="display:inline;"
+        >
+          {% if task.flag_complete == 1 %}
+            <button type="submit" class="btn btn-success btn-sm">DONE</button>
+          {% else %}
+            <button type="submit" class="btn btn-warning btn-sm">NOT DONE</button>
+          {% endif %}
+        </form>
+      </td>
+      <td>
+        <form
+          action="{{ url_for('job_judy_delete', task_id=task.task_id) }}"
+          method="POST"
+          style="display:inline;"
+        >
+          <button
+            class="btn btn-outline-danger btn-sm"
+            type="submit"
+            onclick="return confirm('Are you sure you want to delete this Judy Task record?');"
+          >
+            Delete
+          </button>
+        </form>
       </td>
     </tr>
+    {% endfor %}
   </tbody>
 </table>

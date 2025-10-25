@@ -5,7 +5,7 @@ import traceback
 from datetime import datetime
 
 import pymysql
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
@@ -46,9 +46,18 @@ def clean_value(val):
 
 
 def _to_float(v):
-    """Safe conversion to float with fallback to 0.0."""
+    """Safely convert database strings or numbers to float."""
     try:
-        return float(v) if v not in (None, "") else 0.0
+        if v is None:
+            return 0.0
+        if isinstance(v, (int, float)):
+            return float(v)
+
+        # Normalize text representation
+        v_str = str(v).strip().replace(',', '').replace('$', '')
+        if v_str == '' or v_str.lower() in ('none', 'null', 'nan'):
+            return 0.0
+        return float(v_str)
     except Exception:
         return 0.0
 
@@ -216,35 +225,16 @@ class sales_detail(db.Model):
 
     def __repr__(self):
         return f"<SalesDetail {self.auto_id}:{self.auto_id}>"
-
     
-def _to_float(v):
-                try:
-                    if v is None or v == "":
-                        return 0.0
-                    return float(v)
-                except Exception:
-                    return 0.0
-    
-def get_job_totals(job_id):
-    """
-    Fetch purchase and commission totals for a given job_id from jobs_index.
-    Returns a dict with the same keys used by detail_tiles.html.
-    """
-    job_index_entry = jobs_index.query.filter_by(job_id=job_id).first()
+class judy_task_line(db.Model):
+    task_id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer)
+    flag_complete = db.Column(db.Integer)
+    task = db.Column(db.String(200))
+    date = db.Column(db.Date)
 
-    if not job_index_entry:
-        return {
-            "purchase_amount": 0.0,
-            "commission_at_sale": 0.0,
-            "commission_net_due": 0.0,
-        }
-
-    return {
-        "purchase_amount": _to_float(job_index_entry.purchase_amount),
-        "commission_at_sale": _to_float(job_index_entry.commission_at_sale),
-        "commission_net_due": _to_float(job_index_entry.commission_net_due),
-    }
+    def __repr__(self):
+        return f"<JudyTaskLine {self.task_id}:{self.task_id}>"
 
 @app.route("/", methods=["POST", "GET"])
 def index():
@@ -276,7 +266,10 @@ def index():
         job_detail_totals = {
             "purchase_amount": sum(_to_float(js.purchase_amount) for js in jobs_summary),
             "commission_at_sale": sum(_to_float(js.commission_at_sale) for js in jobs_summary),
-            "commission_net_due": sum(_to_float(js.commission_net_due) for js in jobs_summary),
+            "commission_net_due": sum(
+        _to_float(js.commission_net_due or js.commission_at_sale)
+        for js in jobs_summary
+            ),
         }
         return render_template("index.html", jobs_summary=jobs_summary, job_detail_totals=job_detail_totals, filters=request.args)
     except Exception:
@@ -309,13 +302,32 @@ def detail(job_id):
     """View job detail page (read-only)."""
     try:
         job_detail = jobs_detail.query.get_or_404(job_id)
-        jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
-        job_detail_totals = get_job_totals(job_id)
+        jobs_summary = jobs_index.query.filter_by(job_id=jobs_index.job_id).first()
 
         eng = engineer_detail.query.filter_by(job_id=job_id).all()
-        sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()  # ✅ includes auto_id now
+        sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
         parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
         commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
+        judy_tasks = judy_task_line.query.filter_by(job_id=job_id).all()
+
+        if not jobs_summary:
+            job_detail_totals = {
+                "purchase_amount": 0.0,
+                "commission_at_sale": 0.0,
+                "commission_net_due": 0.0
+            }
+        else:
+            net_due = _to_float(jobs_summary.commission_net_due)
+            at_sale = _to_float(jobs_summary.commission_at_sale)
+
+            if (net_due == 0.0 or net_due is None) and len(commission_lines) == 0:
+                net_due = at_sale
+
+            job_detail_totals = {
+                "purchase_amount": _to_float(jobs_summary.purchase_amount),
+                "commission_at_sale": at_sale,
+                "commission_net_due": net_due,
+            }
 
         return render_template(
             "detail.html",
@@ -328,6 +340,7 @@ def detail(job_id):
             sales_list=sales.query.order_by(sales.sales_name).all(),
             parent_commission_id=parent_commission,
             commission_lines_for_job=commission_lines,
+            judy_tasks_for_job=judy_tasks,
         )
 
     except Exception:
@@ -376,6 +389,7 @@ def detail_edit(job_id):
         sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
+        show_save=True, cancel_url=f'/detail/{job_id}', title=f"{job_detail.project_name} - Edit Job"
     )
 
 @app.route("/detail/<int:job_id>/judy_edit", methods=["GET", "POST"])
@@ -419,6 +433,7 @@ def detail_edit_judy(job_id):
         sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
+        show_save=True, cancel_url=f'/detail/{job_id}', title="Edit Judy Task"
     )
 
 @app.route('/engineers', methods=['GET', 'POST'])
@@ -487,9 +502,14 @@ def engineer_detail_view(engineer_id):
             "purchase_amount": sum(_to_float(job.purchase_amount) for job, _ in jobs_summary),
             "commission_at_sale": sum(_to_float(job.commission_at_sale) for job, _ in jobs_summary),
             "commission_net_due": sum(_to_float(job.commission_net_due) for job, _ in jobs_summary),
-}
+            }
 
-        return render_template("engineers_detail.html", engineer=eng, jobs_summary=jobs_summary, job_detail_totals=job_detail_totals, filters=request.args)
+        return render_template("engineers_detail.html"\
+                               , engineer=eng
+                               , jobs_summary=jobs_summary
+                               , job_detail_totals=job_detail_totals
+                               , filters=request.args
+                               , show_save=True, cancel_url="/engineers", title="Engineers Detail")
 
     elif request.method == 'POST':
         eng.engineer_name = request.form.get('engineer_name') or None
@@ -559,6 +579,7 @@ def job_commission_edit(job_id):
         sales_list=sales.query.order_by(sales.sales_name).all(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
+        show_save=True, cancel_url=f'/detail/{job_id}', title="Edit Commission Details"
     )
 
 @app.route("/detail/delete_commission/<int:commission_line_id>", methods=["POST"])
@@ -759,6 +780,7 @@ def sales_detail_view(sales_id):
         jobs_summary=jobs_summary,
         job_detail_totals=job_detail_totals,
         filters=filters,
+        show_save=True, cancel_url="/sales", title="Sales Detail"
     )
 
 
@@ -768,6 +790,87 @@ def sales_team_delete(sales_id):
     db.session.delete(sales_to_delete)
     db.session.commit()
     return redirect('/sales')
+
+@app.route("/judy_full_tasks", methods=["POST", "GET"])
+def judy_full_tasks():
+    all_tasks = (db.session.query(judy_task_line, jobs_index.project_name)
+        .outerjoin(jobs_index, jobs_index.job_id == judy_task_line.job_id)
+        .order_by(judy_task_line.flag_complete, judy_task_line.date)).all()
+    if request.method == "POST":
+        try:
+            job_id = (db.session.query(func.max(jobs.job_id)).scalar() or 0) + 1
+            db.session.add_all([jobs(job_id=job_id), jobs_commission(job_id=job_id)])
+            db.session.commit()
+            return redirect(f"/detail/{job_id}/edit")
+        except Exception as e:
+            db.session.rollback()
+            log.exception("Error adding new job")
+            return f"There was an issue adding your task: {str(e)}"
+
+    try:
+        return render_template("judy_full_tasks.html", all_tasks=all_tasks)
+    except Exception:
+        log.exception("Error loading Judy Task page")
+        return "Error loading Judy Task page"
+
+@app.route('/detail/<int:job_id>/add_judy_task', methods=['POST'])
+def job_judy_add(job_id):
+    print("POST received for job_id:", job_id)
+    judy_task = request.form.get('judy_task')
+    judy_task_date = request.form.get('date')
+    new_judy_task = judy_task_line(
+        job_id=job_id,
+        task=judy_task,
+        flag_complete=0,
+        date=judy_task_date
+    )
+
+    try:
+        db.session.add(new_judy_task)
+        db.session.commit()
+        return redirect(f'/detail/{job_id}')
+    except Exception as e:
+        db.session.rollback()
+        error_message = traceback.format_exc()
+        log.debug(error_message + str(e))
+        print(error_message + str(e))
+        return 'There was an issue updating the commission line information'
+    
+@app.route('/detail/<int:job_id>/toggle_judy_task/<int:task_id>', methods=['POST'])
+def job_judy_toggle(job_id, task_id):
+    """Toggle the completion status of a Judy task."""
+    task = judy_task_line.query.get_or_404(task_id)
+
+    # Flip 0 → 1 or 1 → 0
+    task.flag_complete = 0 if task.flag_complete == 1 else 1
+
+    try:
+        db.session.commit()
+
+        # Redirect back to where user came from
+        ref = request.referrer or ""
+        if "/judy_full_tasks" in ref:
+            return redirect(url_for("judy_full_tasks"))
+        else:
+            return redirect(f"/detail/{job_id}")
+
+    except Exception as e:
+        db.session.rollback()
+        log.exception("Error toggling Judy task completion")
+        return f"There was an issue updating the Judy task: {e}", 500
+
+@app.route('/delete/judy_task/<int:task_id>', methods=['POST'])
+def job_judy_delete(task_id):
+    task_to_delete = judy_task_line.query.get_or_404(task_id)
+    job_id = task_to_delete.job_id
+    try:
+        db.session.delete(task_to_delete)
+        db.session.commit()
+        return redirect(f'/detail/{job_id}')
+    except Exception as e:
+        db.session.rollback()
+        log.exception("Error deleting Judy task")
+        return f"There was an issue deleting the Judy task: {e}", 500
 
 
 if __name__ == "__main__":

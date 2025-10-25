@@ -1,9 +1,5 @@
 <form action="/detail/{{ job_detail.job_id }}/edit_commission" method="POST">
-  <h2 class="text-center">
-    <button class="btn btn-outline-light" type="submit">Save</button>
-    <button class="btn btn-outline-primary" type="button" onclick="window.location.href='/detail/{{ job_detail.job_id }}';">Cancel</button>
-    Commission Details
-  </h2>
+  {% include 'includes/_toolbar.html' with context %}
   <table class="table table-striped">
     <tbody>
       <tr class="row row-cols-2">

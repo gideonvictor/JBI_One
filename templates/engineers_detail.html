@@ -6,16 +6,7 @@
 
 {% block body %}
 <form action="/engineers/{{ engineer.engineer_id }}/detail" method="POST">
-    <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">
-    <button class="btn btn-outline-light" type="submit">Save</button>
-    <button class="btn btn-outline-primary"
-      type="button"
-      onclick="window.location.href='/engineers';"
-    >
-      Cancel
-    </button>
-    {{ engineer.engineer_name }} - Details
-    </h1>
+    {% include 'includes/_toolbar.html' with context %}
     <div class="row">
     <div class = "col-12">
         {% include 'detail_tiles.html' with context %}

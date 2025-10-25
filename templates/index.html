@@ -57,12 +57,9 @@
                         $0.00
                     {% endif %}
                 </td>
-
                 <td>
                     {% if js.commission_net_due %}
                         ${{ '%.2f'|format(js.commission_net_due|float) }}
-                    {% elif js.commission_at_sale %}
-                        ${{ '%.2f'|format(js.commission_at_sale|float) }}
                     {% else %}
                         $0.00
                     {% endif %}

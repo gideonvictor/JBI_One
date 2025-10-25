@@ -266,10 +266,7 @@ def index():
         job_detail_totals = {
             "purchase_amount": sum(_to_float(js.purchase_amount) for js in jobs_summary),
             "commission_at_sale": sum(_to_float(js.commission_at_sale) for js in jobs_summary),
-            "commission_net_due": sum(
-        _to_float(js.commission_net_due or js.commission_at_sale)
-        for js in jobs_summary
-            ),
+            "commission_net_due": sum(_to_float(js.commission_net_due) for js in jobs_summary),
         }
         return render_template("index.html", jobs_summary=jobs_summary, job_detail_totals=job_detail_totals, filters=request.args)
     except Exception:
@@ -302,7 +299,7 @@ def detail(job_id):
     """View job detail page (read-only)."""
     try:
         job_detail = jobs_detail.query.get_or_404(job_id)
-        jobs_summary = jobs_index.query.filter_by(job_id=jobs_index.job_id).first()
+        jobs_summary = jobs_index.query.filter_by(job_id=job_id).first()
 
         eng = engineer_detail.query.filter_by(job_id=job_id).all()
         sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
@@ -310,24 +307,11 @@ def detail(job_id):
         commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
         judy_tasks = judy_task_line.query.filter_by(job_id=job_id).all()
 
-        if not jobs_summary:
-            job_detail_totals = {
-                "purchase_amount": 0.0,
-                "commission_at_sale": 0.0,
-                "commission_net_due": 0.0
-            }
-        else:
-            net_due = _to_float(jobs_summary.commission_net_due)
-            at_sale = _to_float(jobs_summary.commission_at_sale)
-
-            if (net_due == 0.0 or net_due is None) and len(commission_lines) == 0:
-                net_due = at_sale
-
-            job_detail_totals = {
-                "purchase_amount": _to_float(jobs_summary.purchase_amount),
-                "commission_at_sale": at_sale,
-                "commission_net_due": net_due,
-            }
+        job_detail_totals = {
+            "purchase_amount": jobs_summary.purchase_amount,
+            "commission_at_sale": jobs_summary.commission_at_sale,
+            "commission_net_due": jobs_summary.commission_net_due,
+        }
 
         return render_template(
             "detail.html",

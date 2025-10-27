@@ -61,22 +61,6 @@ def _to_float(v):
     except Exception:
         return 0.0
 
-
-def get_job_totals(job_id):
-    """
-    Fetch purchase and commission totals for a given job_id from jobs_index.
-    Returns a dict with the same keys used by detail_tiles.html.
-    """
-    job_index_entry = jobs_index.query.filter_by(job_id=job_id).first()
-    if not job_index_entry:
-        return {k: 0.0 for k in ["purchase_amount", "commission_at_sale", "commission_net_due"]}
-    return {
-        "purchase_amount": _to_float(job_index_entry.purchase_amount),
-        "commission_at_sale": _to_float(job_index_entry.commission_at_sale),
-        "commission_net_due": _to_float(job_index_entry.commission_net_due),
-    }
-
-
 # -----------------------------------------------------------------------------
 # SQLAlchemy Models
 # -----------------------------------------------------------------------------
@@ -335,8 +319,12 @@ def detail(job_id):
 def detail_edit(job_id):
     """Edit job detail information."""
     job_detail = jobs_detail.query.get_or_404(job_id)
-    jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
-    job_detail_totals = get_job_totals(job_id)
+    jobs_summary = jobs_index.query.filter_by(job_id=job_id).first()
+    job_detail_totals = {
+            "purchase_amount": jobs_summary.purchase_amount,
+            "commission_at_sale": jobs_summary.commission_at_sale,
+            "commission_net_due": jobs_summary.commission_net_due,
+        }
 
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
     parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
@@ -374,50 +362,6 @@ def detail_edit(job_id):
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
         show_save=True, cancel_url=f'/detail/{job_id}', title=f"{job_detail.project_name} - Edit Job"
-    )
-
-@app.route("/detail/<int:job_id>/judy_edit", methods=["GET", "POST"])
-def detail_edit_judy(job_id):
-    """Edit Judy task information."""
-    job_detail = jobs_detail.query.get_or_404(job_id)
-    jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
-    job_detail_totals = get_job_totals(job_id)
-
-    eng = engineer_detail.query.filter_by(job_id=job_id).all()
-    parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
-    sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
-    commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
-
-    if request.method == "POST":
-        try:
-            # Update all editable fields using a loop
-            editable_fields = [
-                "judy_task",
-            ]
-            for field in editable_fields:
-                setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
-
-            db.session.commit()
-            return redirect(f"/detail/{job_id}")
-
-        except Exception:
-            db.session.rollback()
-            log.exception(f"Error updating job detail for job_id={job_id}")
-            return "There was an issue updating the header", 500
-
-    # GET request: render edit page
-    return render_template(
-        "detail_edit_judy.html",
-        job_detail=job_detail,
-        job_detail_totals=job_detail_totals,
-        jobs_summary=jobs_summary,
-        eng=eng,
-        sales_details_for_job=sales_details_for_job,
-        engineers_list=engineer.query.order_by(engineer.engineer_name).all(),
-        sales_list=sales.query.order_by(sales.sales_name).all(),
-        parent_commission_id=parent_commission,
-        commission_lines_for_job=commission_lines,
-        show_save=True, cancel_url=f'/detail/{job_id}', title="Edit Judy Task"
     )
 
 @app.route('/engineers', methods=['GET', 'POST'])
@@ -522,8 +466,12 @@ def engineer_detail_view(engineer_id):
 def job_commission_edit(job_id):
     """Edit job commission details."""
     job_detail = jobs_detail.query.get_or_404(job_id)
-    jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
-    job_detail_totals = get_job_totals(job_id)
+    jobs_summary = jobs_index.query.filter_by(job_id=job_id).first()
+    job_detail_totals = {
+            "purchase_amount": jobs_summary.purchase_amount,
+            "commission_at_sale": jobs_summary.commission_at_sale,
+            "commission_net_due": jobs_summary.commission_net_due,
+        }
 
     parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
     if not parent_commission:

@@ -11,11 +11,11 @@ services:
       FLASK_ENV: production
       PORT: 38291
       # optional database connection vars
-      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      MYSQL_USERNAME: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DBNAME: ${MYSQL_DBNAME}
       DOCKER_ENV: "true"
     volumes:
       # mounts your local code so you can edit without rebuilding

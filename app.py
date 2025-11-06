@@ -10,11 +10,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, or_
 
 from config import (
-    postgres_username,
-    postgres_password,
-    postgres_host,
-    postgres_port,
-    postgres_dbname,
+    mysql_username,
+    mysql_password,
+    mysql_host,
+    mysql_port,
+    mysql_dbname,
 )
 
 # -----------------------------------------------------------------------------
@@ -22,8 +22,8 @@ from config import (
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+mysqldb://{postgres_username}:{postgres_password}@"
-    f"{postgres_host}:{postgres_port}/{postgres_dbname}"
+    f"mysql+mysqldb://{mysql_username}:{mysql_password}@"
+    f"{mysql_host}:{mysql_port}/{mysql_dbname}"
 )
 db = SQLAlchemy(app)
 
@@ -34,6 +34,8 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 log = logging.getLogger(__name__)
+
+FILTERABLE_FIELDS = ("project_name", "account", "jbi_number", "market", "contractor")
 
 # -----------------------------------------------------------------------------
 # Utility helpers

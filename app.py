@@ -297,11 +297,10 @@ def index():
 
     try:
         filters = _get_filter_values(request.args)
-        jobs_summary = (
-            _apply_filters(jobs_index.query, jobs_index, filters)
-            .order_by(jobs_index.job_id.desc())
-            .all()
-        )
+        base_q = _apply_filters(jobs_index.query, jobs_index, filters)
+        # exclude entries with empty or null project_name
+        base_q = base_q.filter(jobs_index.project_name.isnot(None)).filter(jobs_index.project_name != "")
+        jobs_summary = base_q.order_by(jobs_index.job_id.desc()).all()
         job_detail_totals = _calculate_totals(
             jobs_summary,
             lambda job: {
@@ -346,7 +345,9 @@ def detail(job_id):
         sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
         parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
         commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
-        judy_tasks = judy_task_line.query.filter_by(job_id=job_id).all()
+        judy_tasks = (
+            judy_task_line.query.filter_by(job_id=job_id).order_by(judy_task_line.date).all()
+        )
 
         job_detail_totals = _calculate_totals(
             [jobs_summary] if jobs_summary else [],

@@ -3,11 +3,11 @@
     <tbody>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Purchase Amount</td>
-            <td style="text-align: left;">{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}</td>
+            <td style="text-align: left;">$ {{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Commission at Sale</td>
-            <td style="text-align: left;">{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}</td>
+            <td style="text-align: left;">$ {{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}</td>
         </tr>
         <tr class="row row-cols-2">
             <td style="text-align: right;">Notes</td>
@@ -42,7 +42,7 @@
         </form>
         {% for c in commission_lines_for_job %}
         <tr>
-            <td>{{ c.commission_amount }}</td>
+            <td>$ {{ c.commission_amount }}</td>
             <td>{{ c.date_commission }}</td>
             <td>
                 <form

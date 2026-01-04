@@ -722,6 +722,7 @@ def judy_full_tasks():
                 judy_task_line.date >= one_month_ago
             )
         )
+        .filter(jobs_index.project_name.isnot(None))
         .order_by(judy_task_line.flag_complete, judy_task_line.date)
         .all()
     )
@@ -747,8 +748,8 @@ def job_judy_add(job_id):
         return redirect(f"/detail/{job_id}")
     return "There was an issue adding the Judy task", 500
     
-@app.route("/detail/<int:job_id>/toggle_judy_task/<int:task_id>", methods=["POST"])
-def job_judy_toggle(job_id, task_id):
+@app.route("/toggle_judy_task/<int:task_id>", methods=["POST"])
+def job_judy_toggle(task_id):
     """Toggle the completion status of a Judy task."""
     task = judy_task_line.query.get_or_404(task_id)
 
@@ -761,7 +762,7 @@ def job_judy_toggle(job_id, task_id):
         ref = request.referrer or ""
         if "/judy_full_tasks" in ref:
             return redirect(url_for("judy_full_tasks"))
-        return redirect(f"/detail/{job_id}")
+        return redirect(f"/detail/{task.job_id}")
 
     return "There was an issue updating the Judy task", 500
 

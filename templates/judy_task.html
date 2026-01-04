@@ -36,7 +36,7 @@
       <td>{{ task.date.strftime('%Y-%m-%d') if task.date else '' }}</td>
       <td>
         <form
-          action="{{ url_for('job_judy_toggle', job_id=job_detail.job_id, task_id=task.task_id) }}"
+          action="{{ url_for('job_judy_toggle', task_id=task.task_id) }}"
           method="POST"
           style="display:inline;"
         >

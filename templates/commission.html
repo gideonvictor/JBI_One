@@ -1,4 +1,4 @@
-<h2 class="text-center"><a class="btn btn-primary" href="/detail/{{ job_detail.job_id }}/edit_commission">Edit</a> Commission Details</h2>
+<h2 class="text-center"><a class="btn btn-primary" href="/detail/{{ job_detail.job_id }}/edit_commission#commission-section">Edit</a> Commission Details</h2>
 <table class="table table-striped">
     <tbody>
         <tr class="row row-cols-2">
@@ -42,7 +42,7 @@
         </form>
         {% for c in commission_lines_for_job %}
         <tr>
-            <td>$ {{ c.commission_amount }}</td>
+            <td>$ {{ '%.2f'|format(c.commission_amount|float) }}</td>
             <td>{{ c.date_commission }}</td>
             <td>
                 <form

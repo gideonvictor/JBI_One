@@ -333,7 +333,7 @@ def commission_line(job_id):
     )
     db.session.add(new_commission)
     if _commit_session(f"Error updating commission line for job_id={job_id}"):
-        return redirect(f"/detail/{job_id}")
+        return redirect(f"/detail/{job_id}#commission-section")
     return "There was an issue updating the commission line information", 500
     
 @app.route("/detail/<int:job_id>", methods=["GET"])
@@ -547,7 +547,7 @@ def job_commission_edit(job_id):
             setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
 
         if _commit_session(f"Error updating commission for job_id={job_id}"):
-            return redirect(f"/detail/{job_id}")
+            return redirect(f"/detail/{job_id}#commission-section")
 
         return "There was an issue updating the job commission", 500
 
@@ -563,7 +563,7 @@ def job_commission_edit(job_id):
         sales_list=_get_all_sales(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
-        show_save=True, cancel_url=f"/detail/{job_id}", title="Edit Commission Details"
+        show_save=True, cancel_url=f"/detail/{job_id}#commission-section", title="Edit Commission Details"
     )
 
 @app.route("/detail/delete_commission/<int:commission_line_id>", methods=["POST"])
@@ -576,7 +576,7 @@ def job_commission_delete(commission_line_id):
 
     db.session.delete(commission_line)
     if _commit_session("Error deleting job commission line"):
-        return redirect(f"/detail/{job_id}") if job_id else redirect("/")
+        return redirect(f"/detail/{job_id}#commission-section") if job_id else redirect("/")
     return "There was an issue deleting the job commission line", 500
 
 
@@ -770,7 +770,7 @@ def job_judy_toggle(task_id):
         ref = request.referrer or ""
         if "/judy_full_tasks" in ref:
             return redirect(url_for("judy_full_tasks"))
-        return redirect(f"/detail/{task.job_id}")
+        return redirect(f"/detail/{task.job_id}#judy-section")
 
     return "There was an issue updating the Judy task", 500
 

@@ -3,7 +3,7 @@ import sys
 import logging
 from datetime import datetime, timedelta
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, or_
 
@@ -19,6 +19,8 @@ from config import (
 # Flask + SQLAlchemy setup
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
+# Needed for `flash()` to work (sessions)
+app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "JBIWATER")
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mysql+mysqldb://{mysql_username}:{mysql_password}@"
     f"{mysql_host}:{mysql_port}/{mysql_dbname}"
@@ -734,19 +736,25 @@ def judy_full_tasks():
 
 @app.route("/detail/<int:job_id>/add_judy_task", methods=["POST"])
 def job_judy_add(job_id):
-    judy_task = request.form.get("judy_task")
-    judy_task_date = request.form.get("date")
-    new_judy_task = judy_task_line(
-        job_id=job_id,
-        task=judy_task,
-        flag_complete=0,
-        date=judy_task_date
-    )
+    date_val = request.form.get('date')
+    if not date_val:
+        flash('You need to have a date', 'warning')
+        return redirect(url_for('detail', job_id=job_id))
 
-    db.session.add(new_judy_task)
-    if _commit_session("Error adding Judy task"):
-        return redirect(f"/detail/{job_id}")
-    return "There was an issue adding the Judy task", 500
+    try:
+        task = judy_task_line()
+        task.job_id = job_id
+        task.task = request.form.get('judy_task')
+        task.date = date_val
+        task.flag_complete = 1 if request.form.get('complete') else 0
+        db.session.add(task)
+        _commit_session(f"Error adding Judy task for job_id={job_id}")
+    except Exception as e:
+        db.session.rollback()
+        flash('Error adding Judy task', 'danger')
+        print('error', e)
+    # Redirect back to the job detail and jump to the Judy section
+    return redirect(url_for('detail', job_id=job_id) + '#judy-section')
     
 @app.route("/toggle_judy_task/<int:task_id>", methods=["POST"])
 def job_judy_toggle(task_id):
@@ -772,7 +780,7 @@ def job_judy_delete(task_id):
     job_id = task_to_delete.job_id
     db.session.delete(task_to_delete)
     if _commit_session("Error deleting Judy task"):
-        return redirect(f"/detail/{job_id}")
+        return redirect(f"/detail/{job_id}#judy-section")
     return "There was an issue deleting the Judy task", 500
 
 

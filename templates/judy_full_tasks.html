@@ -23,7 +23,7 @@
             <td>{{ att.task if att.task is not none else '' }}</td>
             <td>
                 <form
-                action="{{ url_for('job_judy_toggle', job_id=att.job_id, task_id=att.task_id) }}"
+                action="{{ url_for('job_judy_toggle', task_id=att.task_id) }}"
                 method="POST"
                 style="display:inline;"
                 >

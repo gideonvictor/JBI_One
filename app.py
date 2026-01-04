@@ -269,6 +269,7 @@ class judy_task_line(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.Integer)
     flag_complete = db.Column(db.Integer)
+    start_date = db.Column(db.Date)
     task = db.Column(db.String(200))
     date = db.Column(db.Date)
 
@@ -745,6 +746,7 @@ def job_judy_add(job_id):
         task = judy_task_line()
         task.job_id = job_id
         task.task = request.form.get('judy_task')
+        task.start_date = request.form.get('start_date')
         task.date = date_val
         task.flag_complete = 1 if request.form.get('complete') else 0
         db.session.add(task)

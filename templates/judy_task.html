@@ -3,7 +3,8 @@
   <tbody>
     <tr>
       <th>Task</th>
-      <th>Date</th>
+      <th>Start Date</th>
+      <th>Due Date</th>
       <th>Status</th>
       <th>Actions</th>
     </tr>
@@ -21,6 +22,9 @@
           ></textarea>
         </td>
         <td>
+          <input class="form-control" type="date" name="start_date" id="start_date">
+        </td>
+        <td>
           <input class="form-control" type="date" name="date" id="date">
         </td>
         <td></td>
@@ -33,6 +37,7 @@
     {% for task in judy_tasks_for_job %}
     <tr>
       <td>{{ task.task }}</td>
+      <td>{{ task.start_date.strftime('%Y-%m-%d') if task.start_date else '' }}</td>
       <td>{{ task.date.strftime('%Y-%m-%d') if task.date else '' }}</td>
       <td>
         <form

@@ -10,7 +10,7 @@
     {% for sd in sales_details_for_job %}
     <tr>
       <td>{{ sd.sales_name }}</td>
-      <td>{{ sd.job_percentage }}</td>
+      <td>{{ '%.2f'|format(sd.job_percentage|float) }}%</td>
       <td>
         <form
           action="{{ url_for('job_sales_delete', auto_id=sd.auto_id) }}"

@@ -2,6 +2,18 @@
 
 {% block head %}
 <title>Judy Tasks</title>
+<style>
+/* Overdue button styling */
+.overdue-btn {
+    animation: pulse 1.2s infinite;
+    font-weight: 700;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+</style>
 {% endblock %}
 
 {% block body %}
@@ -30,7 +42,7 @@
                 {% if att.flag_complete == 1 %}
                     <button type="submit" class="btn btn-success btn-sm">DONE</button>
                 {% else %}
-                    <button type="submit" class="btn btn-warning btn-sm">NOT DONE</button>
+                    <button type="submit" class="btn btn-warning btn-sm not-done-btn" data-due="{{ att.date.isoformat() if att.date is not none else '' }}">NOT DONE</button>
                 {% endif %}
                 </form>
             </td>
@@ -47,4 +59,32 @@
   </div>
 </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Highlight NOT DONE buttons when the associated date is past due
+document.addEventListener('DOMContentLoaded', function () {
+    const buttons = document.querySelectorAll('.not-done-btn');
+    const today = new Date();
+    // normalize today's date to remove time portion
+    today.setHours(0,0,0,0);
+    buttons.forEach(btn => {
+        const due = btn.getAttribute('data-due');
+        if (!due) return;
+        const dueDate = new Date(due);
+        if (isNaN(dueDate)) return; // can't parse
+        dueDate.setHours(0,0,0,0);
+        if (dueDate < today) {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-danger','overdue-btn');
+            // add an explicit overdue badge for visibility
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-light text-danger ms-2';
+            badge.textContent = 'OVERDUE';
+            btn.appendChild(badge);
+        }
+    });
+});
+</script>
 {% endblock %}

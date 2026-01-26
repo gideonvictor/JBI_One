@@ -349,7 +349,7 @@ def detail(job_id):
         parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
         commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
         judy_tasks = (
-            judy_task_line.query.filter_by(job_id=job_id).order_by(judy_task_line.date).all()
+            judy_task_line.query.filter_by(job_id=job_id).order_by(judy_task_line.date.desc()).all()
         )
 
         job_detail_totals = _calculate_totals(

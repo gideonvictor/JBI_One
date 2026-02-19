@@ -291,7 +291,7 @@ def index():
             job_id = (db.session.query(func.max(jobs.job_id)).scalar() or 0) + 1
             db.session.add_all([jobs(job_id=job_id), jobs_commission(job_id=job_id)])
             if _commit_session(f"Error adding new job with job_id={job_id}"):
-                return redirect(f"/detail/{job_id}/edit")
+                return redirect(f"/detail/{job_id}/edit_full")
             return "There was an issue adding your task", 500
         except Exception as e:
             db.session.rollback()
@@ -418,6 +418,115 @@ def detail_edit(job_id):
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
         show_save=True, cancel_url=f"/detail/{job_id}", title=f"{job_detail.project_name} - Edit Job"
+    )
+
+
+@app.route("/detail/<int:job_id>/edit_full", methods=["GET", "POST"])
+def detail_edit_full(job_id):
+    """Edit all sections on a single page; each section saves independently."""
+    job_detail = jobs_detail.query.get_or_404(job_id)
+    jobs_summary = jobs_index.query.order_by(jobs_index.job_id).all()
+    job_detail_totals = get_job_totals(job_id)
+
+    eng = engineer_detail.query.filter_by(job_id=job_id).all()
+    parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
+    sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
+
+    if request.method == "POST":
+        # Update header fields
+        editable_fields = [
+            "project_name", "account", "reference_contact", "phone_number",
+            "equipment_description", "jbi_number", "market", "status",
+            "contractor", "order_date", "ship_date", "complete",
+        ]
+        for field in editable_fields:
+            setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
+
+        # Update commission header if present
+        parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
+        if parent_commission:
+            commission_fields = [
+                "purchase_amount", "commission_at_sale", "commission_due_pct",
+                "commission_adjust", "cause_of_adjustment", "commission_net_due",
+                "notes", "final_commission", "final_due", "commission_due_1", "du1_date",
+            ]
+            for field in commission_fields:
+                if field in request.form:
+                    setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
+
+        # Add commission line if requested
+        if request.form.get('_add_commission_line'):
+            amt = request.form.get('commission_line_amount_full')
+            date_val = request.form.get('commission_line_date_full')
+            if parent_commission and amt:
+                try:
+                    new_line = jobs_commission_line(
+                        commission_amount=_to_float(amt),
+                        date_commission=date_val,
+                        commission_id=parent_commission.commission_id,
+                    )
+                    db.session.add(new_line)
+                except Exception:
+                    log.exception('Error creating commission line')
+
+        # Add engineer if requested
+        if request.form.get('_add_engineer') and request.form.get('engineer_add'):
+            try:
+                eng_id = int(request.form.get('engineer_add'))
+                exists = job_engineer.query.filter_by(job_id=job_id, engineer_id=eng_id).first()
+                if not exists:
+                    db.session.add(job_engineer(job_id=job_id, engineer_id=eng_id))
+            except Exception:
+                log.exception('Error adding engineer via full edit')
+
+        # Add sales if requested
+        if request.form.get('_add_sales') and request.form.get('sales_add'):
+            try:
+                sales_id_val = int(request.form.get('sales_add'))
+                pct = request.form.get('job_percentage_add') or 100
+                exists = jobs_sales.query.filter_by(job_id=job_id, sales_id=sales_id_val).first()
+                if not exists:
+                    db.session.add(jobs_sales(job_id=job_id, sales_id=sales_id_val, job_percentage=pct))
+            except Exception:
+                log.exception('Error adding sales via full edit')
+
+        # Add Judy task if requested
+        if request.form.get('judy_task_add'):
+            try:
+                t = judy_task_line()
+                t.job_id = job_id
+                t.task = request.form.get('judy_task_add')
+                t.start_date = request.form.get('start_date_add') or None
+                t.date = request.form.get('date_add') or None
+                # When adding a Judy task from the full-edit fragment the
+                # checkbox in the fragment only controls whether the task
+                # should be added on save (not its completion state). New
+                # tasks should default to NOT DONE unless explicitly set
+                # via the dedicated detail add form. Ensure default = 0.
+                t.flag_complete = 0
+                db.session.add(t)
+            except Exception:
+                log.exception('Error adding Judy task via full edit')
+
+        # Commit all changes together
+        if _commit_session(f"Error saving full edit for job_id={job_id}"):
+            return redirect(f"/detail/{job_id}")
+
+        return "There was an issue saving the full edit", 500
+
+    return render_template(
+        "detail_edit_full.html",
+        job_detail=job_detail,
+        job_detail_totals=job_detail_totals,
+        jobs_summary=jobs_summary,
+        eng=eng,
+        sales_details_for_job=sales_details_for_job,
+        engineers_list=_get_all_engineers(),
+        sales_list=_get_all_sales(),
+        parent_commission_id=parent_commission,
+        commission_lines_for_job=commission_lines,
+        show_save=True, cancel_url=f"/detail/{job_id}", title=f"{job_detail.project_name} - Edit All"
     )
 
 @app.route("/detail/<int:job_id>/judy_edit", methods=["GET", "POST"])

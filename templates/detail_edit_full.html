@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Job Detail - {{job_detail.project_name}}</title>
+{% endblock %}
+
+{% block body %}
+<form method="POST" action="/detail/{{ job_detail.job_id }}/edit_full">
+  {% include 'includes/_toolbar.html' with context %}
+  {% include 'detail_tiles.html' with context %}
+  <div class="row">
+    <div class="col-12 col-md-8 d-flex flex-column">
+      {# Use fragment inputs (no nested forms) #}
+      {% include 'job_detail_edit_fragment.html' %}
+    </div>
+    <div class="col-12 col-md-4 d-flex flex-column justify-content-start">
+      <div class="mb-3">
+        {% include 'engineer_fragment.html' %}
+      </div>
+      <div>
+        {% include 'sales_fragment.html' %}
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-md-12 d-flex flex-column justify-content-start">
+      <div class="mb-3">
+        {% include 'judy_task_fragment.html' %}
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-md-12 d-flex flex-column justify-content-start">
+      <div id="commission-section" class="mb-3">
+        {% include 'commission_edit_fragment.html' %}
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{# Full edit uses a single form submit; no extra JS needed here. #}

@@ -1,0 +1,50 @@
+<h2 class="text-center">Judy Task</h2>
+<table class="table table-striped">
+  <tbody>
+    <tr>
+      <th>Task</th>
+      <th>Start Date</th>
+      <th>Due Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+
+    <tr>
+      <td>
+        <textarea
+          name="judy_task_add"
+          id="judy_task_add"
+          rows="8"
+          class="form-control"
+          style="white-space:pre-wrap;"
+        ></textarea>
+      </td>
+      <td>
+        <input class="form-control" type="date" name="start_date_add" id="start_date_add">
+      </td>
+      <td>
+        <input class="form-control" type="date" name="date_add" id="date_add">
+      </td>
+      <td></td>
+      <td>
+        <input type="checkbox" name="complete_add" id="complete_add" value="1"> Add on save
+      </td>
+    </tr>
+
+    {% for task in judy_tasks_for_job %}
+    <tr>
+      <td>{{ task.task }}</td>
+      <td>{{ task.start_date.strftime('%Y-%m-%d') if task.start_date else '' }}</td>
+      <td>{{ task.date.strftime('%Y-%m-%d') if task.date else '' }}</td>
+      <td>
+        {% if task.flag_complete == 1 %}
+          <span class="badge bg-success">DONE</span>
+        {% else %}
+          <span class="badge bg-warning">NOT DONE</span>
+        {% endif %}
+      </td>
+      <td></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

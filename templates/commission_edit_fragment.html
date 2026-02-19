@@ -1,0 +1,74 @@
+<table class="table table-striped">
+  <tbody>
+    <tr class="row row-cols-2">
+      <td style="text-align: right;">Purchase Amount</td>
+          <td style="text-align: left;"><input class="form-control" type="text" name="purchase_amount" id="purchase_amount" value="{{ '%.2f'|format(parent_commission_id.purchase_amount) if parent_commission_id.purchase_amount is not none else '' }}"></td>
+    </tr>
+    <tr class="row row-cols-2">
+      <td style="text-align: right;">Commission at Sale</td>
+          <td style="text-align: left;"><input class="form-control" type="text" name="commission_at_sale" id="commission_at_sale" value="{{ '%.2f'|format(parent_commission_id.commission_at_sale) if parent_commission_id.commission_at_sale is not none else '' }}"></td>
+    </tr>
+    <tr class="row row-cols-2">
+      <td style="text-align: right;">Notes</td>
+      <td>
+        <textarea
+          name="notes"
+          id="notes"
+          rows="8"
+          class="form-control"
+          style="white-space:pre-wrap;"
+        >{{ parent_commission_id.notes if parent_commission_id.notes is not none else '' }}</textarea>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class = "col-12">
+  <table class="table table-striped">
+    <tr>
+      <th>Commission Amount</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+    <tr>
+      <td><input class="form-control" type="text" name="commission_line_amount_full" id="commission_line_amount_full"></td>
+      <td><input class="form-control" type="date" name="commission_line_date_full" id="commission_line_date_full"></td>
+      <td style="max-width:50px">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="_add_commission_line" id="add_commission_on_save" value="1">
+          <label class="form-check-label" for="add_commission_on_save">Add on save</label>
+        </div>
+      </td>
+    </tr>
+    {% for c in commission_lines_for_job %}
+    <tr>
+      <td>$ {{ '%.2f'|format(c.commission_amount|float) }}</td>
+      <td>{{ c.date_commission }}</td>
+      <td>
+        {# Keep delete as separate POST to existing endpoint if desired #}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const amt = document.getElementById('commission_line_amount_full');
+  const date = document.getElementById('commission_line_date_full');
+  if (!amt || !date) return;
+
+  function updateRequired() {
+    const val = (amt.value || '').toString().trim();
+    if (val !== '') {
+      date.required = true;
+    } else {
+      date.required = false;
+    }
+  }
+
+  amt.addEventListener('input', updateRequired);
+  // initialize
+  updateRequired();
+});
+</script>

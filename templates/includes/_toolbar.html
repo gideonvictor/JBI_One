@@ -1,7 +1,7 @@
 {# includes/_toolbar.html #}
 <h1 class="d-flex justify-content-center align-items-center gap-3 my-3">
   {% if show_save %}
-    <button class="btn btn-outline-primary" type="submit">Save</button>
+    <button id="toolbar-save" class="btn btn-outline-primary" type="submit" {% if full_submit %}data-fullsubmit="1"{% endif %}>Save</button>
   {% endif %}
   {% if cancel_url %}
     <button class="btn btn-outline-secondary" type="button" onclick="window.location.href='{{ cancel_url }}';">

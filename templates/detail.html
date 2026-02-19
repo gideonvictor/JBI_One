@@ -5,7 +5,10 @@
 {% endblock %}
 
 {% block body %}
-<h1 class="d-flex justify-content-center align-items-center gap-3 my-3">{{ job_detail.project_name }}</h1>
+<h1 class="d-flex justify-content-center align-items-center gap-3 my-3">
+  <a class="btn btn-primary me-2" href="/detail/{{job_detail.job_id}}/edit_full">Edit</a>
+  {{ job_detail.project_name }}
+</h1>
 {% include 'detail_tiles.html' with context %}
 <div class="row">
   <div class="col-12 col-md-8 d-flex flex-column">

@@ -275,6 +275,13 @@ class judy_task_line(db.Model):
 
     def __repr__(self):
         return f"<JudyTaskLine {self.task_id}:{self.task_id}>"
+    
+class jobs_start_up(db.Model):
+    auto_id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer)
+    sales_id = db.Column(db.Integer)
+    job_start_up = db.Column(db.String(200))
+    job_start_up_date = db.Column(db.Date)
 
 
 def _get_all_engineers():
@@ -346,6 +353,12 @@ def detail(job_id):
 
         eng = engineer_detail.query.filter_by(job_id=job_id).all()
         sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+        start_ups_for_job = (
+            db.session.query(jobs_start_up, sales.sales_name)
+            .outerjoin(sales, sales.sales_id == jobs_start_up.sales_id)
+            .filter(jobs_start_up.job_id == job_id)
+            .all()
+        )
         parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
         commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
         judy_tasks = (
@@ -368,6 +381,7 @@ def detail(job_id):
             jobs_summary=jobs_summary,
             eng=eng,
             sales_details_for_job=sales_details_for_job,
+            start_ups_for_job=start_ups_for_job,
             engineers_list=_get_all_engineers(),
             sales_list=_get_all_sales(),
             parent_commission_id=parent_commission,
@@ -389,6 +403,12 @@ def detail_edit(job_id):
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
     parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
     sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    start_ups_for_job = (
+        db.session.query(jobs_start_up, sales.sales_name)
+        .outerjoin(sales, sales.sales_id == jobs_start_up.sales_id)
+        .filter(jobs_start_up.job_id == job_id)
+        .all()
+    )
     commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
 
     if request.method == "POST":
@@ -413,6 +433,7 @@ def detail_edit(job_id):
         jobs_summary=jobs_summary,
         eng=eng,
         sales_details_for_job=sales_details_for_job,
+        start_ups_for_job=start_ups_for_job,
         engineers_list=_get_all_engineers(),
         sales_list=_get_all_sales(),
         parent_commission_id=parent_commission,
@@ -431,6 +452,12 @@ def detail_edit_full(job_id):
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
     parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
     sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    start_ups_for_job = (
+        db.session.query(jobs_start_up, sales.sales_name)
+        .outerjoin(sales, sales.sales_id == jobs_start_up.sales_id)
+        .filter(jobs_start_up.job_id == job_id)
+        .all()
+    )
     commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
 
     if request.method == "POST":
@@ -491,6 +518,55 @@ def detail_edit_full(job_id):
             except Exception:
                 log.exception('Error adding sales via full edit')
 
+        # Add start up if requested
+        if request.form.get('_add_start_up') and request.form.get('start_up_sales_add'):
+            try:
+                sales_id_val = int(request.form.get('start_up_sales_add'))
+                start_val = request.form.get('job_start_up_add')
+                date_val = request.form.get('job_start_up_date_add') or None
+                db.session.add(jobs_start_up(job_id=job_id, sales_id=sales_id_val, job_start_up=start_val, job_start_up_date=date_val))
+            except Exception:
+                log.exception('Error adding start up via full edit')
+
+        # Update existing start_up entries (editable fields in fragment)
+        try:
+            for key, val in request.form.items():
+                # Date fields have prefix job_start_up_date_<id>
+                if key.startswith('job_start_up_date_'):
+                    suffix = key.rsplit('_', 1)[1]
+                    if not suffix.isdigit():
+                        continue
+                    auto_id = int(suffix)
+                    jsu = jobs_start_up.query.get(auto_id)
+                    if not jsu:
+                        continue
+                    jsu.job_start_up_date = request.form.get(key) or None
+                    continue
+
+                # Name fields: job_start_up_<id>
+                if key.startswith('job_start_up_'):
+                    suffix = key.rsplit('_', 1)[1]
+                    if not suffix.isdigit():
+                        continue
+                    auto_id = int(suffix)
+                    jsu = jobs_start_up.query.get(auto_id)
+                    if not jsu:
+                        continue
+                    jsu.job_start_up = clean_value(val)
+                    continue
+
+                # Delete marked rows: expect keys like delete_start_up_<auto_id>
+                if key.startswith('delete_start_up_'):
+                    suffix = key.rsplit('_', 1)[1]
+                    if not suffix.isdigit():
+                        continue
+                    auto_id = int(suffix)
+                    jsu = jobs_start_up.query.get(auto_id)
+                    if jsu:
+                        db.session.delete(jsu)
+        except Exception:
+            log.exception('Error updating start up entries via full edit')
+
         # Add Judy task if requested
         if request.form.get('judy_task_add'):
             try:
@@ -522,6 +598,7 @@ def detail_edit_full(job_id):
         jobs_summary=jobs_summary,
         eng=eng,
         sales_details_for_job=sales_details_for_job,
+        start_ups_for_job=start_ups_for_job,
         engineers_list=_get_all_engineers(),
         sales_list=_get_all_sales(),
         parent_commission_id=parent_commission,
@@ -539,6 +616,12 @@ def detail_edit_judy(job_id):
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
     parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
     sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    start_ups_for_job = (
+        db.session.query(jobs_start_up, sales.sales_name)
+        .outerjoin(sales, sales.sales_id == jobs_start_up.sales_id)
+        .filter(jobs_start_up.job_id == job_id)
+        .all()
+    )
     commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
 
     if request.method == "POST":
@@ -559,6 +642,7 @@ def detail_edit_judy(job_id):
         jobs_summary=jobs_summary,
         eng=eng,
         sales_details_for_job=sales_details_for_job,
+        start_ups_for_job=start_ups_for_job,
         engineers_list=_get_all_engineers(),
         sales_list=_get_all_sales(),
         parent_commission_id=parent_commission,
@@ -645,6 +729,12 @@ def job_commission_edit(job_id):
 
     eng = engineer_detail.query.filter_by(job_id=job_id).all()
     sales_details_for_job = sales_detail.query.filter_by(job_id=job_id).all()
+    start_ups_for_job = (
+        db.session.query(jobs_start_up, sales.sales_name)
+        .outerjoin(sales, sales.sales_id == jobs_start_up.sales_id)
+        .filter(jobs_start_up.job_id == job_id)
+        .all()
+    )
     commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
 
     if request.method == "POST":
@@ -670,6 +760,7 @@ def job_commission_edit(job_id):
         eng=eng,
         engineers_list=_get_all_engineers(),
         sales_details_for_job=sales_details_for_job,
+        start_ups_for_job=start_ups_for_job,
         sales_list=_get_all_sales(),
         parent_commission_id=parent_commission,
         commission_lines_for_job=commission_lines,
@@ -742,6 +833,45 @@ def job_sales_delete(auto_id):
     if _commit_session("Error deleting job sales"):
         return redirect(f"/detail/{job_id}")
     return "There was an issue deleting the job sales", 500
+
+
+@app.route("/detail/<int:job_id>/edit_start_up", methods=["POST"])
+def job_start_up_edit(job_id):
+    selected_sales_name = request.form.get("sales_name")
+    job_start_up_val = request.form.get("job_start_up")
+    job_start_up_date = request.form.get("job_start_up_date") or None
+
+    if not selected_sales_name:
+        return "Sales not selected", 400
+
+    selected_sales = sales.query.filter_by(sales_name=selected_sales_name).first()
+    if not selected_sales:
+        return "Sales not found", 400
+
+    try:
+        new_start = jobs_start_up(
+            job_id=job_id,
+            sales_id=selected_sales.sales_id,
+            job_start_up=job_start_up_val,
+            job_start_up_date=job_start_up_date,
+        )
+        db.session.add(new_start)
+        if _commit_session("Error adding job start up"):
+            return redirect(f"/detail/{job_id}")
+    except Exception:
+        log.exception('Error adding job start up')
+
+    return "There was an issue updating the job start up", 500
+
+
+@app.route("/detail/delete_start_up/<int:auto_id>", methods=["POST"])
+def job_start_up_delete(auto_id):
+    start_to_delete = jobs_start_up.query.get_or_404(auto_id)
+    job_id = start_to_delete.job_id
+    db.session.delete(start_to_delete)
+    if _commit_session("Error deleting job start up"):
+        return redirect(f"/detail/{job_id}")
+    return "There was an issue deleting the job start up", 500
 
 @app.route("/detail/delete_engineer/<int:auto_id>", methods=["POST"])
 def job_engineer_delete(auto_id):

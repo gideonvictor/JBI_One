@@ -22,7 +22,7 @@ app = Flask(__name__)
 # Needed for `flash()` to work (sessions)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "JBIWATER")
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f"mysql+mysqldb://{mysql_username}:{mysql_password}@"
+    f"mysql+pymysql://{mysql_username}:{mysql_password}@"
     f"{mysql_host}:{mysql_port}/{mysql_dbname}"
 )
 db = SQLAlchemy(app)

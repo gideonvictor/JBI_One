@@ -40,6 +40,17 @@
             </div>
           </div>
         </div>
+
+        <div class="col-12 col-md-4">
+          <div class="card text-white bg-secondary">
+            <div class="card-body">
+              <h3 class="card-title">Start Up</h3>
+              <p class="card-text mb-0">
+                $ {{ '%.2f'|format(tiles_source.start_up|float) if tiles_source.start_up is not none else '—' }}
+              </p>
+            </div>
+          </div>
+        </div>
       {% else %}
         <p class="text-muted text-center">No commission data available.</p>
       {% endif %}

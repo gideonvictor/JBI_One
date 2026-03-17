@@ -90,7 +90,7 @@ def _apply_filters(query, model, filters):
 
 def _calculate_totals(rows, amount_getter):
     """Aggregate monetary totals across rows using the provided accessor."""
-    totals = {"purchase_amount": 0.0, "commission_at_sale": 0.0, "commission_net_due": 0.0}
+    totals = {"purchase_amount": 0.0, "commission_at_sale": 0.0, "commission_net_due": 0.0, "start_up": 0.0}
     for row in rows:
         amounts = amount_getter(row) or {}
         for key in totals:
@@ -105,13 +105,14 @@ def get_job_totals(job_id):
     """
     job_index_entry = jobs_index.query.filter_by(job_id=job_id).first()
     if not job_index_entry:
-        return {k: 0.0 for k in ["purchase_amount", "commission_at_sale", "commission_net_due"]}
+        return {k: 0.0 for k in ["purchase_amount", "commission_at_sale", "commission_net_due", "start_up"]}
     return _calculate_totals(
         [job_index_entry],
         lambda job: {
             "purchase_amount": job.purchase_amount,
             "commission_at_sale": job.commission_at_sale,
             "commission_net_due": job.commission_net_due,
+            "start_up": job.start_up,
         },
     )
 
@@ -317,6 +318,7 @@ def index():
                 "purchase_amount": job.purchase_amount,
                 "commission_at_sale": job.commission_at_sale,
                 "commission_net_due": job.commission_net_due,
+                "start_up": job.start_up,
             },
         )
         return render_template(
@@ -371,6 +373,7 @@ def detail(job_id):
                 "purchase_amount": job.purchase_amount,
                 "commission_at_sale": job.commission_at_sale,
                 "commission_net_due": job.commission_net_due,
+                "start_up": job.start_up,
             },
         )
 
@@ -922,6 +925,7 @@ def sales_detail_view(sales_id):
             "purchase_amount": _to_float(row[0].purchase_amount) * (_to_float(row[1]) / 100.0),
             "commission_at_sale": _to_float(row[0].commission_at_sale) * (_to_float(row[1]) / 100.0),
             "commission_net_due": _to_float(row[0].commission_net_due) * (_to_float(row[1]) / 100.0),
+            "start_up": _to_float(row[0].start_up) * (_to_float(row[1]) / 100.0),
         },
     )
 

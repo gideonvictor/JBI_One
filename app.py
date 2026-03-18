@@ -229,6 +229,7 @@ class jobs_index(db.Model):
     purchase_amount = db.Column(db.String(200))
     commission_at_sale = db.Column(db.String(200))
     commission_net_due = db.Column(db.String(200))
+    start_up = db.Column(db.String(200))
 
     def __repr__(self):
         return f"<JobsIndex {self.job_id}>"

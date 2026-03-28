@@ -1,11 +1,13 @@
 import os
 import sys
+import json
 import logging
+import traceback
 from datetime import datetime, timedelta
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, text
 
 from config import (
     mysql_username,
@@ -21,6 +23,8 @@ from config import (
 app = Flask(__name__)
 # Needed for `flash()` to work (sessions)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "JBIWATER")
+# Ensure our errorhandler is used even when FLASK_DEBUG=true in development
+app.config["PROPAGATE_EXCEPTIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"mysql+pymysql://{mysql_username}:{mysql_password}@"
     f"{mysql_host}:{mysql_port}/{mysql_dbname}"
@@ -69,8 +73,9 @@ def _commit_session(error_message):
     try:
         db.session.commit()
         return True
-    except Exception:
+    except Exception as e:
         db.session.rollback()
+        _log_error_dump(e, _get_request_payload())
         log.exception(error_message)
         return False
 
@@ -96,6 +101,56 @@ def _calculate_totals(rows, amount_getter):
         for key in totals:
             totals[key] += _to_float(amounts.get(key))
     return totals
+
+
+def _get_request_payload():
+    """Collect POST/PUT payload for better debugging."""
+    try:
+        if request and request.method in ("POST", "PUT"):
+            return {
+                "method": request.method,
+                "path": request.path,
+                "args": request.args.to_dict(flat=False),
+                "form": request.form.to_dict(flat=False),
+                "json": request.get_json(silent=True),
+                "files": {k: v.filename for k, v in request.files.items()},
+            }
+    except Exception:
+        pass
+    return {}
+
+
+def _log_error_dump(err, payload=None):
+    """Persist exception context to error_dump table."""
+    try:
+        if isinstance(err, BaseException):
+            if getattr(err, "__traceback__", None) is not None:
+                error_text = "".join(traceback.format_exception(type(err), err, err.__traceback__))
+            else:
+                error_text = traceback.format_exc() or str(err)
+            if not error_text or error_text.strip() == "":
+                error_text = str(err)
+        else:
+            error_text = str(err)
+
+        payload_data = payload if isinstance(payload, dict) else {"details": payload}
+        json_payload = json.dumps(payload_data, default=str, ensure_ascii=False)
+
+        # Use a separate engine connection/transaction so this does not depend on current session state
+        with db.engine.begin() as conn:
+            conn.execute(
+                text(
+                    "INSERT INTO error_dump (error_dump_text, error_dump_payload, created_at) "
+                    "VALUES (:text, :payload, :created_at)"
+                ),
+                {
+                    "text": error_text,
+                    "payload": json_payload,
+                    "created_at": datetime.utcnow(),
+                },
+            )
+    except Exception:
+        log.exception("Failed to write to error_dump")
 
 
 def get_job_totals(job_id):
@@ -286,12 +341,28 @@ class jobs_start_up(db.Model):
     job_start_up_date = db.Column(db.Date)
 
 
+class error_dump(db.Model):
+    auto_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    error_dump_text = db.Column(db.Text)
+    error_dump_payload = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 def _get_all_engineers():
     return engineer.query.order_by(engineer.engineer_name).all()
 
 
 def _get_all_sales():
     return sales.query.order_by(sales.sales_name).all()
+
+
+@app.errorhandler(Exception)
+def handle_global_exception(exc):
+    payload = _get_request_payload()
+    _log_error_dump(exc, payload)
+    log.exception("Unhandled exception in request")
+    return "An internal server error occurred. The incident has been recorded.", 500
+
 
 @app.route("/", methods=["POST", "GET"])
 def index():
@@ -304,6 +375,7 @@ def index():
             return "There was an issue adding your task", 500
         except Exception as e:
             db.session.rollback()
+            _log_error_dump(e, _get_request_payload())
             log.exception("Error adding new job")
             return f"There was an issue adding your task: {str(e)}", 500
 
@@ -328,7 +400,8 @@ def index():
             job_detail_totals=job_detail_totals,
             filters=filters,
         )
-    except Exception:
+    except Exception as e:
+        _log_error_dump(e, _get_request_payload())
         log.exception("Error loading index page")
         return "Error loading index page"
 
@@ -393,7 +466,8 @@ def detail(job_id):
             judy_tasks_for_job=judy_tasks,
         )
 
-    except Exception:
+    except Exception as e:
+        _log_error_dump(e, _get_request_payload())
         log.exception(f"Error loading detail page for job_id={job_id}")
         return "There was an issue gathering details on the job", 500
 
@@ -465,75 +539,79 @@ def detail_edit_full(job_id):
     commission_lines = commission_detail_line.query.filter_by(job_id=job_id).all()
 
     if request.method == "POST":
-        # Update header fields
-        editable_fields = [
-            "project_name", "account", "reference_contact", "phone_number",
-            "equipment_description", "jbi_number", "market", "status",
-            "contractor", "order_date", "ship_date", "complete",
-        ]
-        for field in editable_fields:
-            setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
-
-        # Update commission header if present
-        parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
-        if parent_commission:
-            commission_fields = [
-                "purchase_amount", "commission_at_sale", "commission_due_pct",
-                "commission_adjust", "cause_of_adjustment", "commission_net_due",
-                "notes", "final_commission", "final_due", "commission_due_1", "du1_date",
-            ]
-            for field in commission_fields:
-                if field in request.form:
-                    setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
-
-        # Add commission line if requested
-        if request.form.get('_add_commission_line'):
-            amt = request.form.get('commission_line_amount_full')
-            date_val = request.form.get('commission_line_date_full')
-            if parent_commission and amt:
-                try:
-                    new_line = jobs_commission_line(
-                        commission_amount=_to_float(amt),
-                        date_commission=date_val,
-                        commission_id=parent_commission.commission_id,
-                    )
-                    db.session.add(new_line)
-                except Exception:
-                    log.exception('Error creating commission line')
-
-        # Add engineer if requested
-        if request.form.get('_add_engineer') and request.form.get('engineer_add'):
-            try:
-                eng_id = int(request.form.get('engineer_add'))
-                exists = job_engineer.query.filter_by(job_id=job_id, engineer_id=eng_id).first()
-                if not exists:
-                    db.session.add(job_engineer(job_id=job_id, engineer_id=eng_id))
-            except Exception:
-                log.exception('Error adding engineer via full edit')
-
-        # Add sales if requested
-        if request.form.get('_add_sales') and request.form.get('sales_add'):
-            try:
-                sales_id_val = int(request.form.get('sales_add'))
-                pct = request.form.get('job_percentage_add') or 100
-                exists = jobs_sales.query.filter_by(job_id=job_id, sales_id=sales_id_val).first()
-                if not exists:
-                    db.session.add(jobs_sales(job_id=job_id, sales_id=sales_id_val, job_percentage=pct))
-            except Exception:
-                log.exception('Error adding sales via full edit')
-
-        # Add start up if requested
-        if request.form.get('_add_start_up') and request.form.get('start_up_sales_add'):
-            try:
-                sales_id_val = int(request.form.get('start_up_sales_add'))
-                start_val = request.form.get('job_start_up_add')
-                date_val = request.form.get('job_start_up_date_add') or None
-                db.session.add(jobs_start_up(job_id=job_id, sales_id=sales_id_val, job_start_up=start_val, job_start_up_date=date_val))
-            except Exception:
-                log.exception('Error adding start up via full edit')
-
-        # Update existing start_up entries (editable fields in fragment)
         try:
+            # Update header fields
+            editable_fields = [
+                "project_name", "account", "reference_contact", "phone_number",
+                "equipment_description", "jbi_number", "market", "status",
+                "contractor", "order_date", "ship_date", "complete",
+            ]
+            for field in editable_fields:
+                setattr(job_detail, field, clean_value(request.form.get(field, getattr(job_detail, field))))
+
+            # Update commission header if present
+            parent_commission = jobs_commission.query.filter_by(job_id=job_id).first()
+            if parent_commission:
+                commission_fields = [
+                    "purchase_amount", "commission_at_sale", "commission_due_pct",
+                    "commission_adjust", "cause_of_adjustment", "commission_net_due",
+                    "notes", "final_commission", "final_due", "commission_due_1", "du1_date",
+                ]
+                for field in commission_fields:
+                    if field in request.form:
+                        setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
+
+            # Add commission line if requested
+            if request.form.get('_add_commission_line'):
+                amt = request.form.get('commission_line_amount_full')
+                date_val = request.form.get('commission_line_date_full')
+                if parent_commission and amt:
+                    try:
+                        new_line = jobs_commission_line(
+                            commission_amount=_to_float(amt),
+                            date_commission=date_val,
+                            commission_id=parent_commission.commission_id,
+                        )
+                        db.session.add(new_line)
+                    except Exception as e:
+                        _log_error_dump(e, _get_request_payload())
+                        log.exception('Error creating commission line')
+
+            # Add engineer if requested
+            if request.form.get('_add_engineer') and request.form.get('engineer_add'):
+                try:
+                    eng_id = int(request.form.get('engineer_add'))
+                    exists = job_engineer.query.filter_by(job_id=job_id, engineer_id=eng_id).first()
+                    if not exists:
+                        db.session.add(job_engineer(job_id=job_id, engineer_id=eng_id))
+                except Exception as e:
+                    _log_error_dump(e, _get_request_payload())
+                    log.exception('Error adding engineer via full edit')
+
+            # Add sales if requested
+            if request.form.get('_add_sales') and request.form.get('sales_add'):
+                try:
+                    sales_id_val = int(request.form.get('sales_add'))
+                    pct = request.form.get('job_percentage_add') or 100
+                    exists = jobs_sales.query.filter_by(job_id=job_id, sales_id=sales_id_val).first()
+                    if not exists:
+                        db.session.add(jobs_sales(job_id=job_id, sales_id=sales_id_val, job_percentage=pct))
+                except Exception as e:
+                    _log_error_dump(e, _get_request_payload())
+                    log.exception('Error adding sales via full edit')
+
+            # Add start up if requested
+            if request.form.get('_add_start_up') and request.form.get('start_up_sales_add'):
+                try:
+                    sales_id_val = int(request.form.get('start_up_sales_add'))
+                    start_val = request.form.get('job_start_up_add')
+                    date_val = request.form.get('job_start_up_date_add') or None
+                    db.session.add(jobs_start_up(job_id=job_id, sales_id=sales_id_val, job_start_up=start_val, job_start_up_date=date_val))
+                except Exception as e:
+                    _log_error_dump(e, _get_request_payload())
+                    log.exception('Error adding start up via full edit')
+
+            # Update existing start_up entries (editable fields in fragment)
             for key, val in request.form.items():
                 # Date fields have prefix job_start_up_date_<id>
                 if key.startswith('job_start_up_date_'):
@@ -568,32 +646,32 @@ def detail_edit_full(job_id):
                     jsu = jobs_start_up.query.get(auto_id)
                     if jsu:
                         db.session.delete(jsu)
-        except Exception:
-            log.exception('Error updating start up entries via full edit')
 
-        # Add Judy task if requested
-        if request.form.get('judy_task_add'):
-            try:
-                t = judy_task_line()
-                t.job_id = job_id
-                t.task = request.form.get('judy_task_add')
-                t.start_date = request.form.get('start_date_add') or None
-                t.date = request.form.get('date_add') or None
-                # When adding a Judy task from the full-edit fragment the
-                # checkbox in the fragment only controls whether the task
-                # should be added on save (not its completion state). New
-                # tasks should default to NOT DONE unless explicitly set
-                # via the dedicated detail add form. Ensure default = 0.
-                t.flag_complete = 0
-                db.session.add(t)
-            except Exception:
-                log.exception('Error adding Judy task via full edit')
+            # Add Judy task if requested
+            if request.form.get('judy_task_add'):
+                try:
+                    t = judy_task_line()
+                    t.job_id = job_id
+                    t.task = request.form.get('judy_task_add')
+                    t.start_date = request.form.get('start_date_add') or None
+                    t.date = request.form.get('date_add') or None
+                    t.flag_complete = 0
+                    db.session.add(t)
+                except Exception as e:
+                    _log_error_dump(e, _get_request_payload())
+                    log.exception('Error adding Judy task via full edit')
 
-        # Commit all changes together
-        if _commit_session(f"Error saving full edit for job_id={job_id}"):
-            return redirect(f"/detail/{job_id}")
+            # Commit all changes together
+            if _commit_session(f"Error saving full edit for job_id={job_id}"):
+                return redirect(f"/detail/{job_id}")
 
-        return "There was an issue saving the full edit", 500
+            return "There was an issue saving the full edit", 500
+
+        except Exception as e:
+            db.session.rollback()
+            _log_error_dump(e, _get_request_payload())
+            log.exception(f"Error saving full edit for job_id={job_id}")
+            return "There was an issue saving the full edit", 500
 
     return render_template(
         "detail_edit_full.html",
@@ -862,7 +940,8 @@ def job_start_up_edit(job_id):
         db.session.add(new_start)
         if _commit_session("Error adding job start up"):
             return redirect(f"/detail/{job_id}")
-    except Exception:
+    except Exception as e:
+        _log_error_dump(e, _get_request_payload())
         log.exception('Error adding job start up')
 
     return "There was an issue updating the job start up", 500
@@ -975,7 +1054,8 @@ def judy_full_tasks():
     )
     try:
         return render_template("judy_full_tasks.html", all_tasks=all_tasks)
-    except Exception:
+    except Exception as e:
+        _log_error_dump(e, _get_request_payload())
         log.exception("Error loading Judy Task page")
         return "Error loading Judy Task page"
 
@@ -997,6 +1077,7 @@ def job_judy_add(job_id):
         _commit_session(f"Error adding Judy task for job_id={job_id}")
     except Exception as e:
         db.session.rollback()
+        _log_error_dump(e, _get_request_payload())
         flash('Error adding Judy task', 'danger')
         print('error', e)
     # Redirect back to the job detail and jump to the Judy section

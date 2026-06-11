@@ -384,7 +384,21 @@ def index():
         base_q = _apply_filters(jobs_index.query, jobs_index, filters)
         # exclude entries with empty or null project_name
         base_q = base_q.filter(jobs_index.project_name.isnot(None)).filter(jobs_index.project_name != "")
-        jobs_summary = base_q.order_by(jobs_index.job_id.desc()).all()
+        
+        # Handle sorting
+        sort_by = request.args.get('sort_by', '')
+        sort_order = request.args.get('sort_order', 'asc')
+        
+        if sort_by in ('project_name', 'jbi_number', 'account'):
+            sort_column = getattr(jobs_index, sort_by)
+            if sort_order == 'desc':
+                base_q = base_q.order_by(sort_column.desc())
+            else:
+                base_q = base_q.order_by(sort_column.asc())
+        else:
+            base_q = base_q.order_by(jobs_index.jbi_number.desc())
+        
+        jobs_summary = base_q.all()
         job_detail_totals = _calculate_totals(
             jobs_summary,
             lambda job: {
@@ -399,6 +413,8 @@ def index():
             jobs_summary=jobs_summary,
             job_detail_totals=job_detail_totals,
             filters=filters,
+            sort_by=sort_by,
+            sort_order=sort_order,
         )
     except Exception as e:
         _log_error_dump(e, _get_request_payload())

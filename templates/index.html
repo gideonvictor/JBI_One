@@ -18,9 +18,9 @@
     {% else %}
     <table class="table table-striped">
         <tr>
-            <th>Project</th>
-            <th>JBI #</th>
-            <th>Account</th>
+            <th>Project <a href="?sort_by=project_name&sort_order={{ 'desc' if sort_by == 'project_name' and sort_order == 'asc' else 'asc' }}" class="btn btn-sm btn-link" style="padding: 0; margin-left: 5px;">⇅</a></th>
+            <th>JBI # <a href="?sort_by=jbi_number&sort_order={{ 'desc' if sort_by == 'jbi_number' and sort_order == 'asc' else 'asc' }}" class="btn btn-sm btn-link" style="padding: 0; margin-left: 5px;">⇅</a></th>
+            <th>Account <a href="?sort_by=account&sort_order={{ 'desc' if sort_by == 'account' and sort_order == 'asc' else 'asc' }}" class="btn btn-sm btn-link" style="padding: 0; margin-left: 5px;">⇅</a></th>
             <th>Commission at Sale</th>
             <th>Commission Net Due</th>
             <th>Start Up</th>

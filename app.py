@@ -80,6 +80,20 @@ def _commit_session(error_message):
         return False
 
 
+def normalize_numeric_input(val):
+    """Normalize numeric inputs like '1,000' or '$1,000' for safe DB storage."""
+    if val is None:
+        return None
+    if isinstance(val, str):
+        cleaned = val.strip()
+        if cleaned == "" or cleaned.lower() in ("none", "null"):
+            return None
+        return cleaned.replace(",", "").replace("$", "")
+    if isinstance(val, (int, float)):
+        return str(val)
+    return str(val)
+
+
 def _get_filter_values(args, fields=FILTERABLE_FIELDS):
     """Extract and normalize filter values from request args."""
     return {field: (args.get(field, type=str) or "").strip() for field in fields}
@@ -573,9 +587,15 @@ def detail_edit_full(job_id):
                     "commission_adjust", "cause_of_adjustment", "commission_net_due",
                     "notes", "final_commission", "final_due", "commission_due_1", "du1_date",
                 ]
+                numeric_fields = {"purchase_amount", "commission_at_sale", "commission_net_due", "commission_due_pct", "commission_adjust", "final_commission", "final_due", "commission_due_1"}
                 for field in commission_fields:
                     if field in request.form:
-                        setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
+                        value = request.form.get(field, getattr(parent_commission, field))
+                        if field in numeric_fields:
+                            value = normalize_numeric_input(value)
+                        else:
+                            value = clean_value(value)
+                        setattr(parent_commission, field, value)
 
             # Add commission line if requested
             if request.form.get('_add_commission_line'):
@@ -841,8 +861,14 @@ def job_commission_edit(job_id):
             "commission_adjust", "cause_of_adjustment", "commission_net_due",
             "notes", "final_commission", "final_due", "commission_due_1", "du1_date",
         ]
+        numeric_fields = {"purchase_amount", "commission_at_sale", "commission_net_due", "commission_due_pct", "commission_adjust", "final_commission", "final_due", "commission_due_1"}
         for field in editable_fields:
-            setattr(parent_commission, field, clean_value(request.form.get(field, getattr(parent_commission, field))))
+            value = request.form.get(field, getattr(parent_commission, field))
+            if field in numeric_fields:
+                value = normalize_numeric_input(value)
+            else:
+                value = clean_value(value)
+            setattr(parent_commission, field, value)
 
         if _commit_session(f"Error updating commission for job_id={job_id}"):
             return redirect(f"/detail/{job_id}#commission-section")

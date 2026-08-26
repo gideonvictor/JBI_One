@@ -327,6 +327,7 @@ class sales(db.Model):
 class sales_detail(db.Model):
     auto_id = db.Column(db.Integer, primary_key=True)
     job_id = db.Column(db.Integer)
+    sales_id = db.Column(db.Integer)
     sales_name = db.Column(db.String(200))
     sales_contact = db.Column(db.String(200))
     sales_phone = db.Column(db.String(200))
@@ -1038,16 +1039,29 @@ def sales_team():
 def sales_detail_view(sales_id):
     sales_member = sales.query.get_or_404(sales_id)
 
+    startup_assignment_exists = db.session.query(jobs_start_up.auto_id).filter(
+        jobs_start_up.job_id == jobs_index.job_id,
+        jobs_start_up.sales_id == sales_id,
+    ).exists()
     q = (
         db.session.query(jobs_index, jobs_sales.job_percentage)
-        .join(jobs_sales, jobs_index.job_id == jobs_sales.job_id)
-        .filter(jobs_sales.sales_id == sales_id)
+        .outerjoin(
+            jobs_sales,
+            (jobs_index.job_id == jobs_sales.job_id) & (jobs_sales.sales_id == sales_id),
+        )
+        .filter(or_(jobs_sales.sales_id == sales_id, startup_assignment_exists))
     )
 
     filters = _get_filter_values(request.args)
     q = _apply_filters(q, jobs_index, filters)
 
     jobs_summary = q.order_by(jobs_index.job_id.desc()).all()
+    sales_start_up_totals = dict(
+        db.session.query(jobs_start_up.job_id, func.sum(jobs_start_up.job_start_up))
+        .filter(jobs_start_up.sales_id == sales_id)
+        .group_by(jobs_start_up.job_id)
+        .all()
+    )
 
     job_detail_totals = _calculate_totals(
         jobs_summary,
@@ -1055,7 +1069,7 @@ def sales_detail_view(sales_id):
             "purchase_amount": _to_float(row[0].purchase_amount) * (_to_float(row[1]) / 100.0),
             "commission_at_sale": _to_float(row[0].commission_at_sale) * (_to_float(row[1]) / 100.0),
             "commission_net_due": _to_float(row[0].commission_net_due) * (_to_float(row[1]) / 100.0),
-            "start_up": _to_float(row[0].start_up) * (_to_float(row[1]) / 100.0),
+            "start_up": _to_float(sales_start_up_totals.get(row[0].job_id, 0.0)),
         },
     )
 
@@ -1072,6 +1086,7 @@ def sales_detail_view(sales_id):
         sales=sales_member,
         jobs_summary=jobs_summary,
         job_detail_totals=job_detail_totals,
+        sales_start_up_totals=sales_start_up_totals,
         filters=filters,
         show_save=True, cancel_url="/sales", title="Sales Detail"
     )

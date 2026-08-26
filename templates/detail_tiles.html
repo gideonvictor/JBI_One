@@ -13,7 +13,7 @@
             <div class="card-body">
               <h3 class="card-title">Purchase Amount</h3>
               <p class="card-text mb-0">
-                $ {{ '%.2f'|format(tiles_source.purchase_amount|float) if tiles_source.purchase_amount is not none else '—' }}
+                $ {{ '{:,.2f}'.format(tiles_source.purchase_amount|float) if tiles_source.purchase_amount is not none else '—' }}
               </p>
             </div>
           </div>
@@ -24,7 +24,7 @@
             <div class="card-body">
               <h3 class="card-title">Commission At Sale</h3>
               <p class="card-text mb-0">
-                $ {{ '%.2f'|format(tiles_source.commission_at_sale|float) if tiles_source.commission_at_sale is not none else '—' }}
+                $ {{ '{:,.2f}'.format(tiles_source.commission_at_sale|float) if tiles_source.commission_at_sale is not none else '—' }}
               </p>
             </div>
           </div>
@@ -35,7 +35,7 @@
             <div class="card-body">
               <h3 class="card-title">Commission Net Due</h3>
               <p class="card-text mb-0">
-                $ {{ '%.2f'|format(tiles_source.commission_net_due|float) if tiles_source.commission_net_due is not none else '—' }}
+                $ {{ '{:,.2f}'.format(tiles_source.commission_net_due|float) if tiles_source.commission_net_due is not none else '—' }}
               </p>
             </div>
           </div>
@@ -46,7 +46,7 @@
             <div class="card-body">
               <h3 class="card-title">Start Up</h3>
               <p class="card-text mb-0">
-                $ {{ '%.2f'|format(tiles_source.start_up|float) if tiles_source.start_up is not none else '—' }}
+                $ {{ '{:,.2f}'.format(tiles_source.start_up|float) if tiles_source.start_up is not none else '—' }}
               </p>
             </div>
           </div>

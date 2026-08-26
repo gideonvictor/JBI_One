@@ -403,7 +403,15 @@ def index():
         sort_by = request.args.get('sort_by', '')
         sort_order = request.args.get('sort_order', 'asc')
         
-        if sort_by in ('project_name', 'jbi_number', 'account'):
+        if sort_by in (
+            'project_name',
+            'jbi_number',
+            'account',
+            'purchase_amount',
+            'commission_at_sale',
+            'commission_net_due',
+            'start_up',
+        ):
             sort_column = getattr(jobs_index, sort_by)
             if sort_order == 'desc':
                 base_q = base_q.order_by(sort_column.desc())

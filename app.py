@@ -1042,6 +1042,7 @@ def sales_detail_view(sales_id):
     startup_assignment_exists = db.session.query(jobs_start_up.auto_id).filter(
         jobs_start_up.job_id == jobs_index.job_id,
         jobs_start_up.sales_id == sales_id,
+        jobs_start_up.job_start_up_date.isnot(None),
     ).exists()
     q = (
         db.session.query(jobs_index, jobs_sales.job_percentage)
@@ -1058,7 +1059,10 @@ def sales_detail_view(sales_id):
     jobs_summary = q.order_by(jobs_index.job_id.desc()).all()
     sales_start_up_totals = dict(
         db.session.query(jobs_start_up.job_id, func.sum(jobs_start_up.job_start_up))
-        .filter(jobs_start_up.sales_id == sales_id)
+        .filter(
+            jobs_start_up.sales_id == sales_id,
+            jobs_start_up.job_start_up_date.isnot(None),
+        )
         .group_by(jobs_start_up.job_id)
         .all()
     )
